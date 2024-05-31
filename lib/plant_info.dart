@@ -36,11 +36,11 @@ class PlantInfo extends StatelessWidget {
                     Image.asset(plantInfo.image!),
                     const SizedBox(height: 10.0),
                     Text(
-                      "Name: ${plantInfo.segmentation}",
+                      "Name: ${plantInfo.id}",
                     ),
                     const SizedBox(height: 10.0),
                     Text(
-                      "Description: ${plantInfo.segmentation}",
+                      "Description: ${plantInfo.id}",
                     ),
                     const SizedBox(height: 10.0),
                     Text(
@@ -49,12 +49,12 @@ class PlantInfo extends StatelessWidget {
                     const SizedBox(height: 10.0),
                     if (plantInfo.status == 'completed')
                       Text(
-                        "disease: ${plantInfo.segmentation}",
+                        "disease: ${plantInfo.id}",
                       ),
                     const SizedBox(height: 10.0),
                     if (plantInfo.status == 'completed')
                       Text(
-                        "Plant Cure: ${plantInfo.segmentation}",
+                        "Plant Cure: ${plantInfo.id}",
                       ),
                     const SizedBox(height: 10.0),
                     // Add a button to fetch the plant status

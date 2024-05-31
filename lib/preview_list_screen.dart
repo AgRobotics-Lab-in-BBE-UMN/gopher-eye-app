@@ -12,7 +12,7 @@ class PreviewListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<GetImageDataResponse>>(
-      future: controller.getPlantData(controller.plantId),
+      future: controller.getPlantData(controller.plantId).then((response) => [response]),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -59,7 +59,7 @@ class PreviewListScreen extends StatelessWidget {
                                 Container(height: 5),
                                 // Add a title widget
                                 Text(
-                                  imageDataList[index].segmentation!,
+                                  imageDataList[index].id!,
                                   style: MyTextSample.title(context)!.copyWith(
                                     color: Colors.black,
                                   ),

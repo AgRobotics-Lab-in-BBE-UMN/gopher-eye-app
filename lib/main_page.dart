@@ -26,8 +26,10 @@ class _MainPageState extends State<MainPage> {
           // evry 2nd item has a status of 'completed' and the rest have a status of 'pending'
           GetImageDataResponse(
               image: 'assets/Btn1_img.jpg',
-              segmentation: 'Plant ${index + 1}',
-              status: index % 2 == 0 ? 'completed' : 'pending'));
+              status: index % 2 == 0 ? 'completed' : 'pending',
+              id: '${index + 1}',
+              masks: [],
+              boundingBoxes: []));
 
   @override
   void initState() {
@@ -149,16 +151,6 @@ class _MainPageState extends State<MainPage> {
                                     children: <Widget>[
                                       // Add some spacing between the top of the card and the title
                                       Container(height: 5),
-                                      // Add a title widget
-                                      Text(
-                                        plantProcessedInfoList[index]
-                                            .segmentation!,
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
                                       // Add some spacing between the title and the subtitle
                                       Container(height: 5),
                                       // Add a subtitle widget
