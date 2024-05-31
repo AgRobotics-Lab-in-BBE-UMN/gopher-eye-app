@@ -15,7 +15,7 @@ class PreviewPage extends StatelessWidget {
   final XFile picture;
   bool imageUploadConfirmed = false;
   void uploadImageData(XFile picture) async {
-    imageUploadConfirmed = (await controller.sendImage(File(picture.path)));
+    imageUploadConfirmed = (await controller.sendImage(File(picture.path))).isNotEmpty;
     if (imageUploadConfirmed) {
       controller.isSuccess.value = imageUploadConfirmed;
       debugPrint("Image upload successfully");

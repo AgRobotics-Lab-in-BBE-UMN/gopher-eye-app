@@ -3,24 +3,27 @@
 class GetImageDataResponse {
   String? id;
   String? image;
-  String? segmentation;
+  List? masks;
+  List? boundingBoxes;
   String? status;
 
-  GetImageDataResponse({this.id, this.image, this.segmentation, this.status});
+  GetImageDataResponse({this.id, this.image, this.status, this.masks, this.boundingBoxes});
 
   GetImageDataResponse.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    id = json['plant_id'];
     image = json['image'];
-    segmentation = json['segmentation'];
     status = json['status'];
+    masks = json['masks'];
+    boundingBoxes = json['bounding_boxes'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['image'] = image;
-    data['segmentation'] = segmentation;
     data['status'] = status;
+    data['masks'] = masks;
+    data['bounding_boxes'] = boundingBoxes;
     return data;
   }
 }

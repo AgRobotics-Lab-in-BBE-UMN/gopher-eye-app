@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:gopher_eye/GetImageDataResponse.dart';
@@ -12,12 +13,12 @@ class ApiServiceController extends GetxController {
   bool isDialogShowing = false;
   var isSuccess = false.obs;
   String plantId = "";
+  String serverURL = "gopher-eye.com";
 
-  Future<bool> sendImage(File image) async {
+  Future<String> sendImage(File image) async {
     isLoading.value = true;
     try {
-      await Future.delayed(const Duration(seconds: 5));
-      var url = Uri.parse("192.168.1.77:5000/dl/segmentation");
+      var url = Uri.http(serverURL, 'dl/segmentation');
       var request = http.MultipartRequest('PUT', url);
       request.files.add(await http.MultipartFile.fromPath('image', image.path));
       var response = await request.send();
@@ -30,35 +31,34 @@ class ApiServiceController extends GetxController {
         // Get the 'plant_id' value from the Map
         plantId = parsedJson['plant_id'];
         debugPrint("Plant ID: $plantId");
-        return true;
+        return plantId;
       } else {
         debugPrint("Image upload failed");
-        return false;
+        return "";
       }
     } catch (e) {
       debugPrint("Error: $e");
     } finally {
       isLoading.value = false;
     }
-    return false;
+    return "";
   }
 
-  Future<List<GetImageDataResponse>> getPlantData(plantId) async {
+  Future<GetImageDataResponse> getPlantData(plantId) async {
     try {
       isLoading.value = true;
 
       final queryParameters = {'plant_id': plantId};
       final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
       var url =
-          Uri.http("http://192.168.1.77:5000", 'plant/data', queryParameters);
+          Uri.http(serverURL, 'plant/data', queryParameters);
       var response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response, parse the JSON
-        List<dynamic> data = jsonDecode(response.body);
-        List<GetImageDataResponse> imageDataList =
-            data.map((item) => GetImageDataResponse.fromJson(item)).toList();
-        return imageDataList;
+        GetImageDataResponse imageData = 
+            GetImageDataResponse.fromJson(jsonDecode(response.body));
+        return imageData;
       } else {
         // If the server returns an error response, throw an exception
         throw Exception('Failed to load image data');
@@ -66,7 +66,7 @@ class ApiServiceController extends GetxController {
     } catch (e) {
       // Catch any errors that occur during the request
       debugPrint("Error: $e");
-      return List.empty();
+      return GetImageDataResponse();
     } finally {
       // Set isLoading to false after the request is complete
       isLoading.value = false;
@@ -74,22 +74,20 @@ class ApiServiceController extends GetxController {
   }
 
   // getPlantImage function by plant_id and imageName
-  Future<List<GetImageDataResponse>> getPlantImage(
+  Future<Image> getPlantImage(
       String plantId, String imageName) async {
     try {
       isLoading.value = true;
       final queryParameters = {'plant_id': plantId, 'image_name': imageName};
       final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
       var url =
-          Uri.http("http://192.168.1.77:5000", '/plant/image', queryParameters);
+          Uri.http(serverURL, '/plant/image', queryParameters);
       var response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response, parse the JSON
-        List<dynamic> data = jsonDecode(response.body);
-        List<GetImageDataResponse> imageDataList =
-            data.map((item) => GetImageDataResponse.fromJson(item)).toList();
-        return imageDataList;
+        Image imageData = Image.memory(response.bodyBytes);
+        return imageData;
       } else {
         // If the server returns an error response, throw an exception
         throw Exception('Failed to load image data');
@@ -97,7 +95,7 @@ class ApiServiceController extends GetxController {
     } catch (e) {
       // Catch any errors that occur during the request
       debugPrint("Error: $e");
-      return List.empty();
+      throw Exception('Failed to load image data');
     } finally {
       // Set isLoading to false after the request is complete
       isLoading.value = false;
@@ -111,7 +109,7 @@ class ApiServiceController extends GetxController {
       final queryParameters = {'plant_id': plantId};
       final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
       var url =
-          Uri.http("http://192.168.1.77:5000", 'plant/status', queryParameters);
+          Uri.http(serverURL, 'plant/status', queryParameters);
       var response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
@@ -120,7 +118,7 @@ class ApiServiceController extends GetxController {
         return data['status'];
       } else {
         // If the server returns an error response, throw an exception
-        throw Exception('Failed to load image data');
+        throw Exception('Failed to retireve status');
       }
     } catch (e) {
       // Catch any errors that occur during the request
