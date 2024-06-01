@@ -33,7 +33,7 @@ class PlantInfo extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.asset(plantInfo.image!),
+                    Image.memory(plantInfo.image!),
                     const SizedBox(height: 10.0),
                     Text(
                       "Name: ${plantInfo.id}",

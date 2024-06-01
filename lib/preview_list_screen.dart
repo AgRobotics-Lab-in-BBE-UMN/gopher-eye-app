@@ -42,7 +42,7 @@ class PreviewListScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           // Add an image widget to display an image
-                          Image.asset(
+                          Image.memory(
                             imageDataList[index].image!,
                             height: 100,
                             width: 100,

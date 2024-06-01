@@ -1,8 +1,10 @@
 // ignore_for_file: file_names
 
+import 'dart:typed_data';
+
 class GetImageDataResponse {
   String? id;
-  String? image;
+  Uint8List? image;
   List? masks;
   List? boundingBoxes;
   String? status;
@@ -11,7 +13,7 @@ class GetImageDataResponse {
 
   GetImageDataResponse.fromJson(Map<String, dynamic> json) {
     id = json['plant_id'];
-    image = json['image'];
+    image = null;
     status = json['status'];
     masks = json['masks'];
     boundingBoxes = json['bounding_boxes'];

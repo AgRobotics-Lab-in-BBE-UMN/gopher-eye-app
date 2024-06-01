@@ -74,7 +74,7 @@ class ApiServiceController extends GetxController {
   }
 
   // getPlantImage function by plant_id and imageName
-  Future<Image> getPlantImage(
+  Future<Uint8List> getPlantImage(
       String plantId, String imageName) async {
     try {
       isLoading.value = true;
@@ -85,9 +85,7 @@ class ApiServiceController extends GetxController {
       var response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
-        // If the server returns a 200 OK response, parse the JSON
-        Image imageData = Image.memory(response.bodyBytes);
-        return imageData;
+        return response.bodyBytes;
       } else {
         // If the server returns an error response, throw an exception
         throw Exception('Failed to load image data');
@@ -124,6 +122,32 @@ class ApiServiceController extends GetxController {
       // Catch any errors that occur during the request
       debugPrint("Error: $e");
       return "";
+    } finally {
+      // Set isLoading to false after the request is complete
+      isLoading.value = false;
+    }
+  }
+
+  Future<List> getPlantIds() async {
+    try {
+      isLoading.value = true;
+      final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
+      var url =
+          Uri.http(serverURL, 'plant/ids');
+      var response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        // If the server returns a 200 OK response, parse the JSON
+        var data = jsonDecode(response.body);
+        return data['plant_ids'];
+      } else {
+        // If the server returns an error response, throw an exception
+        throw Exception('Failed to retireve status');
+      }
+    } catch (e) {
+      // Catch any errors that occur during the request
+      debugPrint("Error: $e");
+      return [];
     } finally {
       // Set isLoading to false after the request is complete
       isLoading.value = false;
