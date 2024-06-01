@@ -7,6 +7,8 @@ import 'package:gopher_eye/plant_capture.dart';
 import 'package:gopher_eye/plant_info.dart';
 import 'package:http/http.dart' as http;
 
+import 'api.dart';
+
 class MainPage extends StatefulWidget {
   const MainPage({super.key, this.plantId});
   final String? plantId;
@@ -15,43 +17,29 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  Map<String, dynamic>? _plantData;
+  ApiServiceController api = ApiServiceController();
   // list of items
-  List<GetImageDataResponse> plantProcessedInfoList = List<
-          GetImageDataResponse>.generate(
-      5,
-      (index) =>
-          // Generate a list of items with the following properties
-          // every item has a unique id, image, segmentation, and status
-          // evry 2nd item has a status of 'completed' and the rest have a status of 'pending'
-          GetImageDataResponse(
-              image: 'assets/Btn1_img.jpg',
-              status: index % 2 == 0 ? 'completed' : 'pending',
-              id: '${index + 1}',
-              masks: [],
-              boundingBoxes: []));
+  List<GetImageDataResponse> plantProcessedInfoList = [];
 
   @override
   void initState() {
     super.initState();
-    if (widget.plantId != null) {
-      _fetchPlantData(widget.plantId!);
-    }
-  }
-
-  Future<void> _fetchPlantData(String plantId) async {
-    const url = 'http://192.168.29.249:8000/plant/data';
-    final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({'plant_id': plantId});
-    final response =
-        await http.post(Uri.parse(url), headers: headers, body: body);
-    if (response.statusCode == 200) {
-      setState(() {
-        _plantData = jsonDecode(response.body);
+    api.getPlantIds().then((plantIds)
+    {
+      // This is gross 🤮. Make some pool of managed objects
+      // and save image data to file instead of storing in memeory
+      plantIds.forEach((plantId) {
+        api.getPlantData(plantId).then((plantData) {
+          api.getPlantImage(plantId, "image").then((image) {
+            plantData.image = image;
+            setState(() {
+              plantProcessedInfoList.add(plantData);
+            });
+          });
+        });
       });
-    } else {
-      print('Failed to fetch plant data: ${response.statusCode}');
-    }
+    
+    });
   }
 
   @override
@@ -135,7 +123,7 @@ class _MainPageState extends State<MainPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 // Add an image widget to display an image
-                                Image.asset(
+                                Image.memory(
                                   plantProcessedInfoList[index].image!,
                                   height: 100,
                                   width: 100,
