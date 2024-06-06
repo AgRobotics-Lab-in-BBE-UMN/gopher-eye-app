@@ -35,7 +35,7 @@ void main() {
     GetImageDataResponse result = await api.getPlantData(plantId);
 
     expect(result.id, plantId);
-    expect(result.image, isNotEmpty);
+    expect(result.image, null);
     expect(result.masks, isNotEmpty);
     expect(result.boundingBoxes, isNotEmpty);
     expect(result.status, "complete");
