@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gopher_eye/api.dart';
 import 'package:gopher_eye/main_page.dart';
 import 'package:gopher_eye/plant_capture.dart';
 import 'package:http/http.dart' as http;
@@ -54,23 +55,14 @@ class PlantUploadScreen extends StatelessWidget {
   }
 
   Future<bool> _uploadImage(BuildContext context, String imagePath) async {
-    const url =
-        'http://192.168.1.77:5000/dl/segmentation'; // Replace with your Flask server address
-
     try {
-      var request = http.MultipartRequest('PUT', Uri.parse(url));
-      request.files.add(await http.MultipartFile.fromPath('image', imagePath));
-      var response = await request.send();
+      File imageFile = File(imagePath);
+      ApiServiceController apiServiceController = ApiServiceController();
+      String plantId = await apiServiceController.sendImage(imageFile);
 
-      if (response.statusCode == 200) {
-        var responseData = await response.stream.bytesToString();
-        var jsonResponse = jsonDecode(responseData);
-        var plantId = jsonResponse['plant_id'];
+      if (!plantId.isEmpty) {
         // Print plant_id
         print('Plant ID: $plantId');
-        // Save plant_id to SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('plant_id', plantId);
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
