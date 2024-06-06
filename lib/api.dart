@@ -7,15 +7,16 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:gopher_eye/GetImageDataResponse.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiServiceController extends GetxController {
   var isLoading = false.obs;
   bool isDialogShowing = false;
   var isSuccess = false.obs;
   String plantId = "";
-  String serverURL = "gopher-eye.com";
 
   Future<String> sendImage(File image) async {
+    String serverURL = await _getServerURL();
     isLoading.value = true;
     try {
       var url = Uri.http(serverURL, 'dl/segmentation');
@@ -46,17 +47,17 @@ class ApiServiceController extends GetxController {
 
   Future<GetImageDataResponse> getPlantData(plantId) async {
     try {
+      String serverURL = await _getServerURL();
       isLoading.value = true;
 
       final queryParameters = {'plant_id': plantId};
       final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
-      var url =
-          Uri.http(serverURL, 'plant/data', queryParameters);
+      var url = Uri.http(serverURL, 'plant/data', queryParameters);
       var response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response, parse the JSON
-        GetImageDataResponse imageData = 
+        GetImageDataResponse imageData =
             GetImageDataResponse.fromJson(jsonDecode(response.body));
         return imageData;
       } else {
@@ -74,14 +75,13 @@ class ApiServiceController extends GetxController {
   }
 
   // getPlantImage function by plant_id and imageName
-  Future<Uint8List> getPlantImage(
-      String plantId, String imageName) async {
+  Future<Uint8List> getPlantImage(String plantId, String imageName) async {
     try {
+      String serverURL = await _getServerURL();
       isLoading.value = true;
       final queryParameters = {'plant_id': plantId, 'image_name': imageName};
       final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
-      var url =
-          Uri.http(serverURL, '/plant/image', queryParameters);
+      var url = Uri.http(serverURL, '/plant/image', queryParameters);
       var response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
@@ -103,11 +103,11 @@ class ApiServiceController extends GetxController {
   // get_plant_status function by plant_id
   Future<String> getPlantStatus(String plantId) async {
     try {
+      String serverURL = await _getServerURL();
       isLoading.value = true;
       final queryParameters = {'plant_id': plantId};
       final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
-      var url =
-          Uri.http(serverURL, 'plant/status', queryParameters);
+      var url = Uri.http(serverURL, 'plant/status', queryParameters);
       var response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
@@ -130,10 +130,10 @@ class ApiServiceController extends GetxController {
 
   Future<List> getPlantIds() async {
     try {
+      String serverURL = await _getServerURL();
       isLoading.value = true;
       final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
-      var url =
-          Uri.http(serverURL, 'plant/ids');
+      var url = Uri.http(serverURL, 'plant/ids');
       var response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
@@ -152,5 +152,10 @@ class ApiServiceController extends GetxController {
       // Set isLoading to false after the request is complete
       isLoading.value = false;
     }
+  }
+
+  Future<String> _getServerURL() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('serverUrl') ?? 'gopher-eye.com';
   }
 }
