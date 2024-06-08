@@ -7,10 +7,25 @@ import 'package:gopher_eye/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class PlantInfo extends StatelessWidget {
+class PlantInfo extends StatefulWidget {
   const PlantInfo({super.key, required this.plantInfo});
-
   final GetImageDataResponse plantInfo;
+
+  @override
+  _PlantInfoState createState() => _PlantInfoState();
+}
+
+class _PlantInfoState extends State<PlantInfo> {
+  bool areBoundingBoxesVisible = true;
+  bool areMasksVisible = true;
+  List<Color> maskColors = [];
+
+  void initSatte() {
+    super.initState();
+    for (int i = 0; i < widget.plantInfo.masks!.length; i += 1) {
+      maskColors.add(Color((Random().nextDouble() * 0xFFFFFF).toInt()));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,58 +52,75 @@ class PlantInfo extends StatelessWidget {
                   children: [
                     Container(
                       child: Stack(children: <Widget>[
-                        // Container(
-                        //   height: 100,
-                        //   color: Colors.red,
-                        // ),
-                        Image.memory(plantInfo.image!),
-                        Positioned.fill(
-                            child: LayoutBuilder(
-                          builder: (context, constraints) => CustomPaint(
-                            painter: BoundingBoxes(
-                                plantInfo.boundingBoxes,
-                                constraints.maxWidth,
-                                constraints.maxHeight),
-                          ),
-                        )),
-                        Positioned.fill(
-                            child: LayoutBuilder(
-                          builder: (context, constraints) => CustomPaint(
-                            painter: Masks(
-                                plantInfo.masks,
-                                constraints.maxWidth,
-                                constraints.maxHeight),
-                          ),
-                        )),
+                        Image.memory(widget.plantInfo.image!),
+                        Visibility(
+                            visible: areBoundingBoxesVisible,
+                            child: Positioned.fill(
+                                child: LayoutBuilder(
+                                    builder: (context, constraints) =>
+                                        CustomPaint(
+                                          painter: BoundingBoxes(
+                                              widget.plantInfo.boundingBoxes,
+                                              constraints.maxWidth,
+                                              constraints.maxHeight),
+                                        )))),
+                        Visibility(
+                            visible: areMasksVisible,
+                            child: Positioned.fill(
+                                child: Masks(
+                                    masks: widget.plantInfo.masks,
+                                    colors: maskColors)))
                       ]),
                     ),
                     const SizedBox(height: 10.0),
                     Text(
-                      "Name: ${plantInfo.id}",
+                      "Name: ${widget.plantInfo.id}",
                     ),
                     const SizedBox(height: 10.0),
                     Text(
-                      "Description: ${plantInfo.id}",
+                      "Description: ${widget.plantInfo.id}",
                     ),
                     const SizedBox(height: 10.0),
                     Text(
-                      "Status: ${plantInfo.status}",
+                      "Status: ${widget.plantInfo.status}",
                     ),
                     const SizedBox(height: 10.0),
-                    if (plantInfo.status == 'completed')
+                    if (widget.plantInfo.status == 'completed')
                       Text(
-                        "disease: ${plantInfo.id}",
+                        "disease: ${widget.plantInfo.id}",
                       ),
                     const SizedBox(height: 10.0),
-                    if (plantInfo.status == 'completed')
+                    if (widget.plantInfo.status == 'completed')
                       Text(
-                        "Plant Cure: ${plantInfo.id}",
+                        "Plant Cure: ${widget.plantInfo.id}",
                       ),
                     const SizedBox(height: 10.0),
+                    Row(children: [
+                      Text("Show Bounding Boxes"),
+                      Switch(
+                        value: areBoundingBoxesVisible,
+                        onChanged: (value) {
+                          setState(() {
+                            areBoundingBoxesVisible = value;
+                          });
+                        },
+                      )
+                    ]),
+                    Row(children: [
+                      Text("Show Masks"),
+                      Switch(
+                        value: areMasksVisible,
+                        onChanged: (value) {
+                          setState(() {
+                            areMasksVisible = value;
+                          });
+                        },
+                      )
+                    ]),
                     // Add a button to fetch the plant status
                     ElevatedButton(
                       onPressed: () async {
-                        if (plantInfo.id == null) {
+                        if (widget.plantInfo.id == null) {
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
                           var plantId = prefs.getString('plant_id');
@@ -115,7 +147,8 @@ class PlantInfo extends StatelessWidget {
                             );
                           }
                         } else {
-                          final status = await fetchPlantStatus(plantInfo.id!);
+                          final status =
+                              await fetchPlantStatus(widget.plantInfo.id!);
                           if (status != null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -166,7 +199,8 @@ class BoundingBoxes extends CustomPainter {
   final double widthScale;
   final double heightScale;
 
-  BoundingBoxes(this.boundingBoxes, this.widthScale, this.heightScale);
+  BoundingBoxes(
+      this.boundingBoxes, this.widthScale, this.heightScale);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -191,12 +225,29 @@ class BoundingBoxes extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-class Masks extends CustomPainter {
+class Masks extends StatelessWidget {
+  final List<Color> colors;
+  final List<dynamic>? masks;
+
+  const Masks({super.key, required this.masks, required this.colors});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+        builder: (context, constraints) => CustomPaint(
+              painter: MasksPainter(
+                  masks, constraints.maxWidth, constraints.maxHeight, colors),
+            ));
+  }
+}
+
+class MasksPainter extends CustomPainter {
   final List<dynamic>? masks;
   final double widthScale;
   final double heightScale;
+  final List<Color> colors;
 
-  Masks(this.masks, this.widthScale, this.heightScale);
+  MasksPainter(this.masks, this.widthScale, this.heightScale, this.colors);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -218,7 +269,11 @@ class Masks extends CustomPainter {
         }
       }
       path.close();
-      final color = Color((Random().nextDouble() * 0xFFFFFF).toInt());
+
+      if (colors.length < masks!.length) {
+        colors.add(Color((Random().nextDouble() * 0xFFFFFF).toInt()));
+      }
+      final color = colors[i];
       paint.color = color.withOpacity(0.5);
       canvas.drawPath(path, paint..style = PaintingStyle.fill);
       paint.color = color.withOpacity(1.0);
