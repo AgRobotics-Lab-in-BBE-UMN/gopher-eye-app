@@ -51,6 +51,15 @@ class PlantInfo extends StatelessWidget {
                                 constraints.maxHeight),
                           ),
                         )),
+                        Positioned.fill(
+                            child: LayoutBuilder(
+                          builder: (context, constraints) => CustomPaint(
+                            painter: Masks(
+                                plantInfo.masks,
+                                constraints.maxWidth,
+                                constraints.maxHeight),
+                          ),
+                        )),
                       ]),
                     ),
                     const SizedBox(height: 10.0),
@@ -175,6 +184,45 @@ class BoundingBoxes extends CustomPainter {
           Rect.fromLTWH(widthScale * x, heightScale * y, widthScale * width,
               heightScale * height),
           paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class Masks extends CustomPainter {
+  final List<dynamic>? masks;
+  final double widthScale;
+  final double heightScale;
+
+  Masks(this.masks, this.widthScale, this.heightScale);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+    for (int i = 0; i < masks!.length; i += 1) {
+      final mask = masks![i];
+      final path = Path();
+      for (int j = 0; j < mask.length; j += 1) {
+        final x = mask[j][0];
+        final y = mask[j][1];
+        if (j == 0) {
+          path.moveTo(widthScale * x, heightScale * y);
+        } else {
+          path.lineTo(widthScale * x, heightScale * y);
+        }
+      }
+      path.close();
+      final color = Color((Random().nextDouble() * 0xFFFFFF).toInt());
+      paint.color = color.withOpacity(0.5);
+      canvas.drawPath(path, paint..style = PaintingStyle.fill);
+      paint.color = color.withOpacity(1.0);
+      canvas.drawPath(path, paint..style = PaintingStyle.stroke);
     }
   }
 
