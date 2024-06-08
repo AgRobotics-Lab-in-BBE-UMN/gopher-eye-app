@@ -67,26 +67,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                     )
                   ],
-                )
-
-                // body: SafeArea(
-                //     child: Center(
-                //         child: Column(children: [
-                //   ElevatedButton(
-                //     onPressed: () async {
-                //       await availableCameras().then((value) => Navigator.push(context,
-                //           MaterialPageRoute(builder: (_) => CameraPage(cameras: value))));
-                //     },
-                //     child: const Text("Capture Image"),
-                //   ),
-                //   ElevatedButton(
-                //     onPressed: () async {
-                //       await availableCameras().then((value) => Navigator.push(
-                //           context, MaterialPageRoute(builder: (_) => ChatbotPage())));
-                //     },
-                //     child: const Text("Chatbot"),
-                //   )
-                // ]))                // ),
-                )));
+                ))));
   }
 }

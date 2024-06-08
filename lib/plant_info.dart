@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gopher_eye/GetImageDataResponse.dart';
+import 'package:gopher_eye/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,7 +35,24 @@ class PlantInfo extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.memory(plantInfo.image!),
+                    Container(
+                      child: Stack(children: <Widget>[
+                        // Container(
+                        //   height: 100,
+                        //   color: Colors.red,
+                        // ),
+                        Image.memory(plantInfo.image!),
+                        Positioned.fill(
+                            child: LayoutBuilder(
+                          builder: (context, constraints) => CustomPaint(
+                            painter: BoundingBoxes(
+                                plantInfo.boundingBoxes,
+                                constraints.maxWidth,
+                                constraints.maxHeight),
+                          ),
+                        )),
+                      ]),
+                    ),
                     const SizedBox(height: 10.0),
                     Text(
                       "Name: ${plantInfo.id}",
@@ -116,17 +135,14 @@ class PlantInfo extends StatelessWidget {
   }
 
   Future<String?> fetchPlantStatus(String plantId) async {
-    final url = Uri.parse('http://192.168.1.77:5000/plant/status');
-    final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({'plant_id': plantId});
+    ApiServiceController api = ApiServiceController();
 
     try {
-      final response = await http.post(url, headers: headers, body: body);
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-        return data['status'];
+      final String status = await api.getPlantStatus(plantId);
+      if (status.isNotEmpty) {
+        return status;
       } else {
-        print('Failed to fetch plant status: ${response.statusCode}');
+        print('Failed to fetch plant status');
         return null;
       }
     } catch (e) {
@@ -134,4 +150,34 @@ class PlantInfo extends StatelessWidget {
       return null;
     }
   }
+}
+
+class BoundingBoxes extends CustomPainter {
+  final List<dynamic>? boundingBoxes;
+  final double widthScale;
+  final double heightScale;
+
+  BoundingBoxes(this.boundingBoxes, this.widthScale, this.heightScale);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+    for (int i = 0; i < boundingBoxes!.length; i += 1) {
+      final x = boundingBoxes![i][0];
+      final y = boundingBoxes![i][1];
+      final width = boundingBoxes![i][2] - boundingBoxes![i][0];
+      final height = boundingBoxes![i][3] - boundingBoxes![i][1];
+      canvas.drawRect(
+          Rect.fromLTWH(widthScale * x, heightScale * y, widthScale * width,
+              heightScale * height),
+          paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
