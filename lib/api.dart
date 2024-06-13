@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:gopher_eye/GetImageDataResponse.dart';
+import 'package:gopher_eye/image_data.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,7 +45,7 @@ class ApiServiceController extends GetxController {
     return "";
   }
 
-  Future<GetImageDataResponse> getPlantData(plantId) async {
+  Future<ImageData> getPlantData(plantId) async {
     try {
       String serverURL = await _getServerURL();
       isLoading.value = true;
@@ -57,8 +57,8 @@ class ApiServiceController extends GetxController {
 
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response, parse the JSON
-        GetImageDataResponse imageData =
-            GetImageDataResponse.fromJson(jsonDecode(response.body));
+        ImageData imageData =
+            ImageData.fromJson(jsonDecode(response.body));
         return imageData;
       } else {
         // If the server returns an error response, throw an exception
@@ -67,7 +67,7 @@ class ApiServiceController extends GetxController {
     } catch (e) {
       // Catch any errors that occur during the request
       debugPrint("Error: $e");
-      return GetImageDataResponse();
+      return ImageData();
     } finally {
       // Set isLoading to false after the request is complete
       isLoading.value = false;
@@ -128,7 +128,7 @@ class ApiServiceController extends GetxController {
     }
   }
 
-  Future<List> getPlantIds() async {
+  Future<List<String>> getPlantIds() async {
     try {
       String serverURL = await _getServerURL();
       isLoading.value = true;
@@ -138,8 +138,8 @@ class ApiServiceController extends GetxController {
 
       if (response.statusCode == 200) {
         // If the server returns a 200 OK response, parse the JSON
-        var data = jsonDecode(response.body);
-        return data['plant_ids'];
+        List<String> data = jsonDecode(response.body)['plant_ids'].cast<String>().toList();
+        return data;
       } else {
         // If the server returns an error response, throw an exception
         throw Exception('Failed to retireve status');

@@ -1,6 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:gopher_eye/GetImageDataResponse.dart';
+import 'package:gopher_eye/image_data.dart';
 
 import 'package:gopher_eye/api.dart';
 
@@ -11,7 +13,7 @@ class PreviewListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<GetImageDataResponse>>(
+    return FutureBuilder<List<ImageData>>(
       future: controller.getPlantData(controller.plantId).then((response) => [response]),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -19,7 +21,7 @@ class PreviewListScreen extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
-          List<GetImageDataResponse> imageDataList = snapshot.data!;
+          List<ImageData> imageDataList = snapshot.data!;
           // Display your data using imageDataList
           return ListView.builder(
             itemCount: imageDataList.length,
@@ -42,8 +44,8 @@ class PreviewListScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           // Add an image widget to display an image
-                          Image.memory(
-                            imageDataList[index].image!,
+                          Image.file(
+                            File(imageDataList[index].image!),
                             height: 100,
                             width: 100,
                             fit: BoxFit.cover,
