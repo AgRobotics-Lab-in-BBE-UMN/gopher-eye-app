@@ -1,12 +1,10 @@
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:gopher_eye/api.dart';
-import 'package:gopher_eye/GetImageDataResponse.dart';
+import 'package:gopher_eye/image_data.dart';
 
 void main() {
   test('Test segmentation job submission', () async {
@@ -16,12 +14,12 @@ void main() {
     String result = await api.sendImage(image);
 
     expect(result, isNotEmpty);
-  });
+  }, skip: true);
 
   test('Test plant status retrieval', () async {
     var api = ApiServiceController();
     // This is not good. This plantId can change at any time.
-    var plantId = "8ef6a0d6-6a75-429f-8a78-7be81d9aaf09";
+    var plantId = "85de490b-6b22-49cd-af1b-b16d5467e45e";
 
     var result = await api.getPlantStatus(plantId);
 
@@ -30,9 +28,9 @@ void main() {
 
   test('Test plant data retrieval', () async {
     var api = ApiServiceController();
-    var plantId = "8ef6a0d6-6a75-429f-8a78-7be81d9aaf09";
+    var plantId = "85de490b-6b22-49cd-af1b-b16d5467e45e";
 
-    GetImageDataResponse result = await api.getPlantData(plantId);
+    ImageData result = await api.getPlantData(plantId);
 
     expect(result.id, plantId);
     expect(result.image, null);

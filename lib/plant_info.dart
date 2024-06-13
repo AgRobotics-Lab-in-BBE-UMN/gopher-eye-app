@@ -1,15 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:gopher_eye/GetImageDataResponse.dart';
+import 'package:gopher_eye/image_data.dart';
 import 'package:gopher_eye/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PlantInfo extends StatefulWidget {
   const PlantInfo({super.key, required this.plantInfo});
-  final GetImageDataResponse plantInfo;
+  final ImageData plantInfo;
 
   @override
   _PlantInfoState createState() => _PlantInfoState();
@@ -52,7 +53,7 @@ class _PlantInfoState extends State<PlantInfo> {
                   children: [
                     Container(
                       child: Stack(children: <Widget>[
-                        Image.memory(widget.plantInfo.image!),
+                        Image.file(File(widget.plantInfo.image!)),
                         Visibility(
                             visible: areBoundingBoxesVisible,
                             child: Positioned.fill(
@@ -259,9 +260,9 @@ class MasksPainter extends CustomPainter {
     for (int i = 0; i < masks!.length; i += 1) {
       final mask = masks![i];
       final path = Path();
-      for (int j = 0; j < mask.length; j += 1) {
-        final x = mask[j][0];
-        final y = mask[j][1];
+      for (int j = 0; j < mask.length; j += 2) {
+        final x = mask[j];
+        final y = mask[j+1];
         if (j == 0) {
           path.moveTo(widthScale * x, heightScale * y);
         } else {

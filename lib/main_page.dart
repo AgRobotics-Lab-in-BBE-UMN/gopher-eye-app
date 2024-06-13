@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gallery_saver/files.dart';
-import 'package:gopher_eye/GetImageDataResponse.dart';
+import 'package:gopher_eye/app_database.dart';
+import 'package:gopher_eye/image_data.dart';
 import 'package:gopher_eye/plant_capture.dart';
 import 'package:gopher_eye/plant_info.dart';
 import 'package:gopher_eye/settings.dart';
@@ -20,25 +22,12 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   ApiServiceController api = ApiServiceController();
   // list of items
-  List<GetImageDataResponse> plantProcessedInfoList = [];
+  List<ImageData> plantProcessedInfoList = [];
 
   @override
   void initState() {
     super.initState();
-    api.getPlantIds().then((plantIds) {
-      // This is gross 🤮. Make some pool of managed objects
-      // and save image data to file instead of storing in memeory
-      plantIds.forEach((plantId) {
-        api.getPlantData(plantId).then((plantData) {
-          api.getPlantImage(plantId, "image").then((image) {
-            plantData.image = image;
-            setState(() {
-              plantProcessedInfoList.add(plantData);
-            });
-          });
-        });
-      });
-    });
+    _updatePage();
   }
 
   @override
@@ -136,8 +125,8 @@ class _MainPageState extends State<MainPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   // Add an image widget to display an image
-                                  Image.memory(
-                                    plantProcessedInfoList[index].image!,
+                                  Image.file(
+                                    File(plantProcessedInfoList[index].image!),
                                     height: 100,
                                     width: 100,
                                     fit: BoxFit.cover,
@@ -187,5 +176,23 @@ class _MainPageState extends State<MainPage> {
           backgroundColor: Colors.green,
           child: const Icon(Icons.camera_alt, color: Colors.white),
         ));
+  }
+
+  Future<void> _updatePage() async {
+    while (true) {
+      AppDatabase.getAllImages().then((images) {
+        List<ImageData> updatedList = [];
+        for (ImageData image in images) {
+          if (image.status == 'complete' && image.image != '' && image.image != null) {
+            updatedList.add(image);
+          }
+        }
+        setState(() {
+          plantProcessedInfoList = updatedList;
+        });
+      });
+
+      await Future.delayed(const Duration(seconds: 5));
+    }
   }
 }
