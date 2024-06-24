@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:gopher_eye/main_page.dart';
+import 'package:gopher_eye/provider/input_validators.dart';
+import 'package:gopher_eye/screens/login_screen.dart';
 import 'package:gopher_eye/synchronizer.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app_database.dart';
 
@@ -16,7 +19,17 @@ void main() {
         Synchronizer(apiUrl: prefs.getString('serverUrl')!);
     synchronizer.syncData();
   });
-  runApp(const MyApp());
+  runApp(MediaQuery(
+    data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
+    child: MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => InputValidators(),
+        )
+      ],
+      child: const MyApp(),
+    ),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -25,9 +38,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'Plant Disease Detection App',
       debugShowCheckedModeBanner: false,
-      home: MainPage(),
+      title: "Gopher Eye Detection",
+      home: LoginScreen(),
     );
   }
 }
