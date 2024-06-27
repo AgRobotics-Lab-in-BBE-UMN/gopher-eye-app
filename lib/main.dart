@@ -5,6 +5,13 @@ import 'package:gopher_eye/screens/main_screen.dart';
 import 'package:gopher_eye/services/synchronizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gopher_eye/services/app_database.dart';
+import 'package:gopher_eye/app_database.dart';
+import 'package:gopher_eye/camera_provider.dart';
+import 'package:gopher_eye/camera_provider.dart';
+import 'package:gopher_eye/home_screen.dart';
+import 'package:gopher_eye/synchronizer.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,14 +26,14 @@ void main() async {
         Synchronizer(apiUrl: prefs.getString('serverUrl')!);
     synchronizer.syncData();
   });
-  runApp(const MediaQuery(
-    data: MediaQueryData(textScaler: TextScaler.linear(1.0)),
-    child: MyApp(),
-    // child: MultiProvider(
-    //   providers: [
-    //   ],
-    //   child: const MyApp(),
-    // ),
+  runApp(MediaQuery(
+    data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
+    child: MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => CameraProvider())
+      ],
+      child: const MyApp(),
+    ),
   ));
 }
 
@@ -36,11 +43,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: "Gopher Eye Detection",
-      home: LoginScreen()
-      // home: MainScreen()
-    );
+        debugShowCheckedModeBanner: false,
+        title: "Gopher Eye Detection",
+        home: LoginScreen()
+        // home: MainScreen()
+        );
   }
 }
 
