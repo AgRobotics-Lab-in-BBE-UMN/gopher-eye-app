@@ -1,0 +1,11 @@
+<svg width="769" height="878" viewBox="0 0 769 878" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="768.035" height="876.969" transform="translate(0.96048 0.11261)" fill="white"/>
+<path d="M365.96 322.613H549.96C575.089 322.613 595.46 342.984 595.46 368.113V678.113C595.46 703.242 575.089 723.613 549.96 723.613H365.96C340.832 723.613 320.46 703.242 320.46 678.113V368.113C320.46 342.984 340.832 322.613 365.96 322.613Z" fill="#D6C5C5" stroke="black" stroke-width="19"/>
+<path d="M513.96 661.613C513.96 687.846 492.246 709.113 465.46 709.113C438.675 709.113 416.96 687.846 416.96 661.613C416.96 635.379 438.675 614.113 465.46 614.113C492.246 614.113 513.96 635.379 513.96 661.613Z" fill="#FF5005"/>
+<path d="M355.96 422.113H557.96" stroke="black" stroke-width="15" stroke-linecap="round"/>
+<path d="M355.96 487.113L557.96 488.113" stroke="black" stroke-width="15" stroke-linecap="round"/>
+<path d="M355.96 549.113H507.96" stroke="black" stroke-width="15" stroke-linecap="round"/>
+<path d="M373.96 329.113H542.96" stroke="black" stroke-width="34" stroke-linecap="round"/>
+<line x1="436.79" y1="661.735" x2="462.79" y2="681.735" stroke="white" stroke-width="6"/>
+<line x1="459.547" y1="680.331" x2="490.547" y2="638.331" stroke="white" stroke-width="6"/>
+</svg>

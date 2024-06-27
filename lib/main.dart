@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:gopher_eye/main_page.dart';
+import 'package:gopher_eye/app_database.dart';
+import 'package:gopher_eye/camera_provider.dart';
+import 'package:gopher_eye/camera_provider.dart';
+import 'package:gopher_eye/home_screen.dart';
 import 'package:gopher_eye/synchronizer.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'app_database.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,10 +15,19 @@ void main() {
     while (prefs.getString('serverUrl') == null) {
       await Future.delayed(const Duration(seconds: 1));
     }
-    Synchronizer synchronizer = Synchronizer(apiUrl: prefs.getString('serverUrl')!);
+    Synchronizer synchronizer =
+        Synchronizer(apiUrl: prefs.getString('serverUrl')!);
     synchronizer.syncData();
   });
-  runApp(const MyApp());
+  runApp(MediaQuery(
+    data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
+    child: MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => CameraProvider())
+      ],
+      child: const MyApp(),
+    ),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -26,7 +38,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'Plant Disease Detection App',
       debugShowCheckedModeBanner: false,
-      home: MainPage(),
+      home: HomeScreen(),
     );
   }
 }
