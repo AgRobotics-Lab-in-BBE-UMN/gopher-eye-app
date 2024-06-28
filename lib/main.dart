@@ -12,7 +12,8 @@ void main() {
     while (prefs.getString('serverUrl') == null) {
       await Future.delayed(const Duration(seconds: 1));
     }
-    Synchronizer synchronizer = Synchronizer(apiUrl: prefs.getString('serverUrl')!);
+    Synchronizer synchronizer =
+        Synchronizer(apiUrl: prefs.getString('serverUrl')!);
     synchronizer.syncData();
   });
   runApp(const MyApp());
