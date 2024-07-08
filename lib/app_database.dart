@@ -194,7 +194,7 @@ class AppDatabase {
     Map<String, Object?> result = results.first;
     return ImageData(
         id: result['id'] as String,
-        image: result['image_file_path'] as String ?? '',
+        image: result['image_file_path'] as String,
         status: result['status'] as String,
         masks: masks,
         boundingBoxes: boundingBoxes);
@@ -213,19 +213,18 @@ class AppDatabase {
           WHERE img.id = '$imageId';
           ORDER BY m.id, mp.path_order
         ''');
-    ;
 
     if (results.length == 1) {
       return [];
     }
 
-    List<int> mask_ids =
+    List<int> maskIds =
         results.map((e) => e['mask_id'] as int).toSet().toList();
 
     List<List<double>> masks = [];
-    for (int mask_id in mask_ids) {
+    for (int maskId in maskIds) {
       List<double> mask = results
-          .where((e) => e['mask_id'] == mask_id)
+          .where((e) => e['mask_id'] == maskId)
           .map((e) => [e['x'] as double, e['y'] as double])
           .toList()
           .expand((e) => e)

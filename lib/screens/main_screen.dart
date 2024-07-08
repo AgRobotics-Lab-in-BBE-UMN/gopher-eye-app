@@ -7,16 +7,19 @@ import 'package:gopher_eye/image_data.dart';
 import 'package:gopher_eye/plant_capture.dart';
 import 'package:gopher_eye/plant_info.dart';
 import 'package:gopher_eye/result_screen.dart';
+import 'package:gopher_eye/settings.dart';
 
-class MainPage extends StatefulWidget {
-  const MainPage({Key? key, this.plantId}) : super(key: key);
+import '../api.dart';
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key, this.plantId});
   final String? plantId;
 
   @override
-  State<StatefulWidget> createState() => _MainPageScreenState();
+  State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainPageScreenState extends State<MainPage> {
+class _MainScreenState extends State<MainScreen> {
   ApiServiceController api = ApiServiceController();
   List<ImageData> plantProcessedInfoList = [];
 
