@@ -1,5 +1,5 @@
-import 'package:gopher_eye/screens/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:gopher_eye/screens/main_screen.dart';
 
 class BottomNavigationBarModel extends StatefulWidget {
   const BottomNavigationBarModel({super.key});
@@ -11,7 +11,7 @@ class BottomNavigationBarModel extends StatefulWidget {
 class _BottomNavigationBarModel extends State<StatefulWidget> {
   int constIndex = 0;
   final List<Widget> screens = [
-    const HomeScreen()
+    const MainScreen()
   ];
   @override
   Widget build(BuildContext context) {

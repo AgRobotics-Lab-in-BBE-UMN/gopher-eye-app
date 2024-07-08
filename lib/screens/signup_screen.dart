@@ -1,7 +1,7 @@
-import 'package:gopher_eye/provider/input_validators.dart';
 import 'package:flutter/material.dart';
 import 'package:gopher_eye/screens/welcome_screen.dart';
-import 'package:provider/provider.dart';
+import 'package:gopher_eye/utils/validators.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 final _formKey = GlobalKey<FormState>();
 
@@ -14,9 +14,32 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreen extends State<StatefulWidget> {
   bool hidden = true;
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
+  Future<bool> signUp(String emailAddress, String password) async {
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
+      );
+      return true;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final validatorProvider = Provider.of<InputValidators>(context);
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -64,7 +87,8 @@ class _SignUpScreen extends State<StatefulWidget> {
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 TextFormField(
-                                  validator: validatorProvider.emailvalidator,
+                                  validator: emailvalidator,
+                                  controller: emailController,
                                   style: TextStyle(
                                       color: Colors.blue[900],
                                       fontWeight: FontWeight.w800),
@@ -76,8 +100,8 @@ class _SignUpScreen extends State<StatefulWidget> {
                                 ),
                                 TextFormField(
                                   obscureText: true,
-                                  validator:
-                                      validatorProvider.passwordvalidator,
+                                  validator: passwordvalidator,
+                                  controller: passwordController,
                                   style: TextStyle(
                                       color: Colors.blue[900],
                                       fontWeight: FontWeight.w800),
@@ -89,8 +113,8 @@ class _SignUpScreen extends State<StatefulWidget> {
                                 ),
                                 TextFormField(
                                   obscureText: hidden,
-                                  validator:
-                                      validatorProvider.passwordvalidator,
+                                  validator: passwordvalidator,
+                                  controller: confirmPasswordController,
                                   style: TextStyle(
                                       color: Colors.blue[900],
                                       fontWeight: FontWeight.w800),
@@ -121,12 +145,21 @@ class _SignUpScreen extends State<StatefulWidget> {
                           MaterialButton(
                             onPressed: () {
                               if (_formKey.currentState!.validate()) {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const WelcomeScreen(),
-                                    ));
+                                if (passwordController.text ==
+                                    confirmPasswordController.text) {
+                                  signUp(emailController.text,
+                                          passwordController.text)
+                                      .then((value) {
+                                    if (value) {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const WelcomeScreen(),
+                                          ));
+                                    }
+                                  });
+                                }
                               }
                             },
                             color: Colors.indigo[900],
@@ -141,25 +174,6 @@ class _SignUpScreen extends State<StatefulWidget> {
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700),
                                 ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 50.0),
-                          Text(
-                            "or Sign-Up with",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w500,
-                                color: Colors.blueGrey[900]),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
-                            child: SizedBox(
-                              height: 50,
-                              width: 50,
-                              child: Card(
-                                child: Image(
-                                    image: AssetImage(
-                                        "assets/images/google_logo.png")),
                               ),
                             ),
                           ),

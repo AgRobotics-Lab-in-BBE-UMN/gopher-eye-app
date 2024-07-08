@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gopher_eye/bottom_navigator/bottom_navigator_bar.dart';
+import 'package:gopher_eye/widgets/bottom_navigator_bar.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});

@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -64,7 +63,7 @@ class _PlantCaptureState extends State<PlantCapture> {
   Future<void> _captureImage() async {
     final CameraController cameraController = _controller;
 
-    if (cameraController!.value.isTakingPicture) {
+    if (cameraController.value.isTakingPicture) {
       // A capture is already pending, do nothing.
       return;
     }

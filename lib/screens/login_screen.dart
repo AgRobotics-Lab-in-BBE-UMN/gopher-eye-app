@@ -1,8 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gopher_eye/bottom_navigator/bottom_navigator_bar.dart';
-import 'package:gopher_eye/provider/input_validator.dart';
+import 'package:gopher_eye/widgets/bottom_navigator_bar.dart';
 import 'package:gopher_eye/screens/signup_screen.dart';
-import 'package:provider/provider.dart';
+import 'package:gopher_eye/utils/validators.dart';
 
 final _formKey = GlobalKey<FormState>();
 
@@ -14,10 +14,33 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreen extends State<StatefulWidget> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
   bool hidden = true;
+  bool loginWarningVisible = false;
+
+  Future<bool> signIn(String emailAddress, String password) async {
+    try {
+      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
+      );
+      return true;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+      }
+    } catch (e) {
+      print(e);
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final validatorProvider = Provider.of<InputValidators>(context);
+    ;
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(
@@ -66,7 +89,8 @@ class _LoginScreen extends State<StatefulWidget> {
                               //* email
 
                               TextFormField(
-                                validator: validatorProvider.emailvalidator,
+                                validator: emailvalidator,
+                                controller: emailController,
                                 style: TextStyle(
                                     color: Colors.blue[900],
                                     fontWeight: FontWeight.w800),
@@ -80,7 +104,8 @@ class _LoginScreen extends State<StatefulWidget> {
                               //* password
                               TextFormField(
                                 obscureText: hidden,
-                                validator: validatorProvider.passwordvalidator,
+                                validator: passwordvalidator,
+                                controller: passwordController,
                                 style: TextStyle(
                                     color: Colors.blue[900],
                                     fontWeight: FontWeight.w800),
@@ -104,20 +129,40 @@ class _LoginScreen extends State<StatefulWidget> {
                                     border: OutlineInputBorder(
                                         borderRadius:
                                             BorderRadius.circular(05.0))),
+                              ),
+                              Visibility(
+                                visible: loginWarningVisible,
+                                child: const Text(
+                                  "Invalid Email or Password",
+                                  style: TextStyle(
+                                      color: Colors.red, fontSize: 14),
+                                ),
                               )
                             ],
                           ),
                         ),
                         MaterialButton(
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const BottomNavigationBarModel(),
-                                  ));
-                            }
+                            signIn(emailController.text,
+                                    passwordController.text)
+                                .then((value) => {
+                                      if (value)
+                                        {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const BottomNavigationBarModel(),
+                                            ),
+                                          )
+                                        }
+                                      else
+                                        {
+                                          setState(() {
+                                            loginWarningVisible = true;
+                                          })
+                                        }
+                                    });
                           },
                           color: Colors.indigo[900],
                           child: const Padding(
@@ -134,25 +179,25 @@ class _LoginScreen extends State<StatefulWidget> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 50.0),
-                        Text(
-                          "or Sign-In with",
-                          style: TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.blueGrey[900]),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
-                          child: SizedBox(
-                            height: 50,
-                            width: 50,
-                            child: Card(
-                              child: Image(
-                                  image: AssetImage(
-                                      "assets/images/google_logo.png")),
-                            ),
-                          ),
-                        ),
+                        // const SizedBox(height: 50.0),
+                        // Text(
+                        //   "or Sign-In with",
+                        //   style: TextStyle(
+                        //       fontWeight: FontWeight.w500,
+                        //       color: Colors.blueGrey[900]),
+                        // ),
+                        // const Padding(
+                        //   padding: EdgeInsets.fromLTRB(40, 20, 40, 20),
+                        //   child: SizedBox(
+                        //     height: 50,
+                        //     width: 50,
+                        //     child: Card(
+                        //       child: Image(
+                        //           image: AssetImage(
+                        //               "assets/images/google_logo.png")),
+                        //     ),
+                        //   ),
+                        // ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
