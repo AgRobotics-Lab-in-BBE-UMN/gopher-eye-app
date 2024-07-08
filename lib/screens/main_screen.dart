@@ -6,6 +6,7 @@ import 'package:gopher_eye/app_database.dart';
 import 'package:gopher_eye/image_data.dart';
 import 'package:gopher_eye/plant_capture.dart';
 import 'package:gopher_eye/plant_info.dart';
+import 'package:gopher_eye/result_screen.dart';
 import 'package:gopher_eye/settings.dart';
 
 import '../api.dart';
@@ -41,21 +42,6 @@ class _MainScreenState extends State<MainScreen> {
             "Gopher Eye",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          automaticallyImplyLeading: true,
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.settings, color: Colors.green),
-              onPressed: () {
-                // Navigate to the settings page when the settings icon is pressed
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const Settings(),
-                  ),
-                );
-              },
-            ),
-          ],
         ),
         actions: [
           IconButton(
