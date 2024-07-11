@@ -1,11 +1,10 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gopher_eye/image_data.dart';
-import 'package:gopher_eye/api.dart';
-import 'package:http/http.dart' as http;
+import 'package:gopher_eye/services/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PlantInfo extends StatefulWidget {
@@ -13,6 +12,7 @@ class PlantInfo extends StatefulWidget {
   final ImageData plantInfo;
 
   @override
+  // ignore: library_private_types_in_public_api
   _PlantInfoState createState() => _PlantInfoState();
 }
 
@@ -51,28 +51,26 @@ class _PlantInfoState extends State<PlantInfo> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      child: Stack(children: <Widget>[
-                        Image.file(File(widget.plantInfo.image!)),
-                        Visibility(
-                            visible: areBoundingBoxesVisible,
-                            child: Positioned.fill(
-                                child: LayoutBuilder(
-                                    builder: (context, constraints) =>
-                                        CustomPaint(
-                                          painter: BoundingBoxes(
-                                              widget.plantInfo.boundingBoxes,
-                                              constraints.maxWidth,
-                                              constraints.maxHeight),
-                                        )))),
-                        Visibility(
-                            visible: areMasksVisible,
-                            child: Positioned.fill(
-                                child: Masks(
-                                    masks: widget.plantInfo.masks,
-                                    colors: maskColors)))
-                      ]),
-                    ),
+                    Stack(children: <Widget>[
+                      Image.file(File(widget.plantInfo.image!)),
+                      Visibility(
+                          visible: areBoundingBoxesVisible,
+                          child: Positioned.fill(
+                              child: LayoutBuilder(
+                                  builder: (context, constraints) =>
+                                      CustomPaint(
+                                        painter: BoundingBoxes(
+                                            widget.plantInfo.boundingBoxes,
+                                            constraints.maxWidth,
+                                            constraints.maxHeight),
+                                      )))),
+                      Visibility(
+                          visible: areMasksVisible,
+                          child: Positioned.fill(
+                              child: Masks(
+                                  masks: widget.plantInfo.masks,
+                                  colors: maskColors)))
+                    ]),
                     const SizedBox(height: 10.0),
                     Text(
                       "Name: ${widget.plantInfo.id}",
@@ -97,7 +95,7 @@ class _PlantInfoState extends State<PlantInfo> {
                       ),
                     const SizedBox(height: 10.0),
                     Row(children: [
-                      Text("Show Bounding Boxes"),
+                      const Text("Show Bounding Boxes"),
                       Switch(
                         value: areBoundingBoxesVisible,
                         onChanged: (value) {
@@ -108,7 +106,7 @@ class _PlantInfoState extends State<PlantInfo> {
                       )
                     ]),
                     Row(children: [
-                      Text("Show Masks"),
+                      const Text("Show Masks"),
                       Switch(
                         value: areMasksVisible,
                         onChanged: (value) {
@@ -128,12 +126,14 @@ class _PlantInfoState extends State<PlantInfo> {
                           if (plantId != null) {
                             final status = await fetchPlantStatus(plantId);
                             if (status != null) {
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('Plant status: $status'),
                                 ),
                               );
                             } else {
+                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Failed to fetch plant status'),
@@ -141,6 +141,7 @@ class _PlantInfoState extends State<PlantInfo> {
                               );
                             }
                           } else {
+                            // ignore: use_build_context_synchronously
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Plant ID not found'),
@@ -151,12 +152,14 @@ class _PlantInfoState extends State<PlantInfo> {
                           final status =
                               await fetchPlantStatus(widget.plantInfo.id!);
                           if (status != null) {
+                            // ignore: use_build_context_synchronously
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Plant status: $status'),
                               ),
                             );
                           } else {
+                            // ignore: use_build_context_synchronously
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Failed to fetch plant status'),
@@ -185,11 +188,15 @@ class _PlantInfoState extends State<PlantInfo> {
       if (status.isNotEmpty) {
         return status;
       } else {
-        print('Failed to fetch plant status');
+        if (kDebugMode) {
+          print('Failed to fetch plant status');
+        }
         return null;
       }
     } catch (e) {
-      print('Error occurred while fetching plant status: $e');
+      if (kDebugMode) {
+        print('Error occurred while fetching plant status: $e');
+      }
       return null;
     }
   }

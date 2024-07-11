@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:io';
 
-import 'package:gopher_eye/api.dart';
+import 'package:gopher_eye/services/api.dart';
 import 'package:gopher_eye/preview_list_screen.dart';
 
 class PreviewPage extends StatelessWidget {

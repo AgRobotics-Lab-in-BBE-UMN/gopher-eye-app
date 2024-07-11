@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gopher_eye/widgets/bottom_navigator_bar.dart';
 import 'package:gopher_eye/screens/signup_screen.dart';
@@ -21,26 +22,31 @@ class _LoginScreen extends State<StatefulWidget> {
 
   Future<bool> signIn(String emailAddress, String password) async {
     try {
-      final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailAddress,
         password: password,
       );
       return true;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        if (kDebugMode) {
+          print('No user found for that email.');
+        }
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        if (kDebugMode) {
+          print('Wrong password provided for that user.');
+        }
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
     return false;
   }
 
   @override
   Widget build(BuildContext context) {
-    ;
     return Scaffold(
       body: Center(
         child: SingleChildScrollView(

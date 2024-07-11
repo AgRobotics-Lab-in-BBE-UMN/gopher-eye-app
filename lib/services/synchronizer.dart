@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'dart:ui';
 
-import 'package:gopher_eye/api.dart';
-import 'package:gopher_eye/app_database.dart';
+import 'package:flutter/foundation.dart';
+import 'package:gopher_eye/services/api.dart';
+import 'package:gopher_eye/services/app_database.dart';
 import 'package:gopher_eye/image_data.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -35,7 +35,9 @@ class Synchronizer {
             await AppDatabase.insertMasks(plantId, updatedImageData.masks!);
           }
         } catch (e) {
-          print('Failed to get image data for $plantId: $e');
+          if (kDebugMode) {
+            print('Failed to get image data for $plantId: $e');
+          }
         }
       }
       await Future.delayed(const Duration(seconds: 30));

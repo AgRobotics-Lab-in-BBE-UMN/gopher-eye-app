@@ -1,12 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:gopher_eye/api.dart';
+import 'package:gopher_eye/services/api.dart';
 import 'package:gopher_eye/screens/main_screen.dart';
 import 'package:gopher_eye/plant_capture.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PlantUploadScreen extends StatelessWidget {
@@ -60,9 +59,11 @@ class PlantUploadScreen extends StatelessWidget {
       ApiServiceController apiServiceController = ApiServiceController();
       String plantId = await apiServiceController.sendImage(imageFile);
 
-      if (!plantId.isEmpty) {
+      if (plantId.isNotEmpty) {
         // Print plant_id
-        print('Plant ID: $plantId');
+        if (kDebugMode) {
+          print('Plant ID: $plantId');
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -117,11 +118,11 @@ class PlantUploadScreen extends StatelessWidget {
     if (success) {
       // Navigate back to MainPage on successful upload
       final prefs = await SharedPreferences.getInstance();
-      var plantId = prefs.getString('plant_id');
+      prefs.getString('plant_id');
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => MainScreen(plantId: plantId),
+          builder: (context) => const MainScreen(),
         ),
       );
     } else {
