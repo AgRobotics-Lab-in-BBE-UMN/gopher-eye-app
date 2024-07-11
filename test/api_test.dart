@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:gopher_eye/api.dart';
+import 'package:gopher_eye/services/api.dart';
 import 'package:gopher_eye/image_data.dart';
 
 void main() {

@@ -1,11 +1,7 @@
-import 'dart:ffi';
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gopher_eye/app_database.dart';
+import 'package:gopher_eye/services/app_database.dart';
 import 'package:gopher_eye/image_data.dart';
-import 'package:gopher_eye/util.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
@@ -355,7 +351,7 @@ void main() {
           image.id as String, image.boundingBoxes!,
           databaseName: 'test.db');
 
-      List<List<double>> boundingBoxes = await AppDatabase.getBoundingBoxes(
+      List<List<double>> _ = await AppDatabase.getBoundingBoxes(
           image.id as String,
           databaseName: 'test.db');
     } finally {

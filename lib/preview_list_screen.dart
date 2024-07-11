@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gopher_eye/image_data.dart';
 
-import 'package:gopher_eye/api.dart';
+import 'package:gopher_eye/services/api.dart';
 
 class PreviewListScreen extends StatelessWidget {
   final ApiServiceController controller = Get.put(ApiServiceController());

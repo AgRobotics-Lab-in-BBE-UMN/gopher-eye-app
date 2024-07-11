@@ -1,19 +1,14 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gopher_eye/api.dart';
-import 'package:gopher_eye/app_database.dart';
+import 'package:gopher_eye/services/api.dart';
+import 'package:gopher_eye/services/app_database.dart';
 import 'package:gopher_eye/image_data.dart';
-import 'package:gopher_eye/plant_capture.dart';
-import 'package:gopher_eye/plant_info.dart';
-import 'package:gopher_eye/result_screen.dart';
-import 'package:gopher_eye/settings.dart';
+import 'package:gopher_eye/screens/result_screen.dart';
+import 'package:gopher_eye/widgets/camera_capture_card.dart';
+import 'package:gopher_eye/widgets/preview_list.dart';
 
-import '../api.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key, this.plantId});
-  final String? plantId;
+  const MainScreen({super.key});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -52,111 +47,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Identify Your Diseases!',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                Card(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              const Column(
-                                children: [
-                                  Image(
-                                    image: AssetImage(
-                                        'assets/images/take_a_picture.png'),
-                                    width: 40,
-                                    height: 50,
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text('Take a'),
-                                  Text('Picture'),
-                                ],
-                              ),
-                              const Icon(
-                                Icons.chevron_right_rounded,
-                                size: 60,
-                                color: Colors.blueGrey,
-                              ),
-                              Column(
-                                children: [
-                                  SvgPicture.asset(
-                                    "assets/icons/diagnosis.svg",
-                                    width: 40,
-                                    height: 50,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text('See'),
-                                  const Text('Result'),
-                                ],
-                              ),
-                              const Icon(Icons.chevron_right_rounded,
-                                  color: Colors.blueGrey, size: 60),
-                              const Column(
-                                children: [
-                                  Image(
-                                    image: AssetImage(
-                                        'assets/images/get_medicine.png'),
-                                    width: 40,
-                                    height: 50,
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text('Get'),
-                                  Text('medicine'),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          Center(
-                            child: MaterialButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const PlantCapture(),
-                                  ),
-                                );
-                              },
-                              color: const Color.fromARGB(255, 13, 108, 186),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 90, vertical: 6),
-                                child: Text(
-                                  "Take a Picture",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          const CameraCaptureCard(),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -191,78 +82,7 @@ class _MainScreenState extends State<MainScreen> {
                     ],
                   ),
                   const SizedBox(height: 10.0),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: plantProcessedInfoList.length,
-                      itemBuilder: (context, index) {
-                        return Column(
-                          children: [
-                            ListTile(
-                              leading: Image.file(
-                                File(plantProcessedInfoList[index].image!),
-                                height: 100,
-                                width: 100,
-                                fit: BoxFit.cover,
-                              ),
-                              title: const Text(
-                                "Date",
-                                style: TextStyle(fontSize: 12),
-                              ),
-                              subtitle: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "View Result",
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  SizedBox(height: 3.0),
-                                  Chip(
-                                    backgroundColor: Colors.teal,
-                                    elevation: 6,
-                                    shape: RoundedRectangleBorder(
-                                      side:
-                                          const BorderSide(color: Colors.teal),
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(20.0)),
-                                    ),
-                                    label: const Text(
-                                      "Complete",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                              trailing: const Icon(
-                                Icons.chevron_right_rounded,
-                                size: 30.0,
-                                color: Colors.black,
-                              ),
-                              tileColor: Colors.transparent,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PlantInfo(
-                                      plantInfo: plantProcessedInfoList[index],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            const Divider(),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
+                  Expanded(child: PreviewList(plantProcessedInfoList: plantProcessedInfoList))
                 ],
               ),
             ),

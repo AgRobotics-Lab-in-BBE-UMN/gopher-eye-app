@@ -1,9 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:gopher_eye/screens/login_screen.dart';
-import 'package:gopher_eye/synchronizer.dart';
+import 'package:gopher_eye/screens/main_screen.dart';
+import 'package:gopher_eye/services/synchronizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'app_database.dart';
+import 'package:gopher_eye/services/app_database.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,7 +38,8 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Gopher Eye Detection",
-      home: LoginScreen(),
+      home: LoginScreen()
+      // home: MainScreen()
     );
   }
 }
