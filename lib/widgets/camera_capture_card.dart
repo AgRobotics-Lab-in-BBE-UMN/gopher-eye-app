@@ -72,7 +72,7 @@ class CameraCaptureCard extends StatelessWidget{
                                   ),
                                   SizedBox(height: 8),
                                   Text('Get'),
-                                  Text('medicine'),
+                                  Text('treatment'),
                                 ],
                               ),
                             ],
