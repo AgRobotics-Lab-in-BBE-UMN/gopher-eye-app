@@ -285,7 +285,7 @@ class _MainPageScreenState extends State<MainPage> {
         });
       });
 
-//       await Future.delayed(const Duration(seconds: 5));
-//     }
-//   }
-// }
+      await Future.delayed(const Duration(seconds: 5));
+    }
+  }
+}
