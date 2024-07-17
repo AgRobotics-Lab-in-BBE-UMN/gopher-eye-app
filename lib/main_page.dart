@@ -1,12 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gopher_eye/api.dart';
-import 'package:gopher_eye/app_database.dart';
+// import 'package:gopher_eye/api.dart';
+// import 'package:gopher_eye/app_database.dart';
 import 'package:gopher_eye/image_data.dart';
 import 'package:gopher_eye/plant_capture.dart';
 import 'package:gopher_eye/plant_info.dart';
-import 'package:gopher_eye/result_screen.dart';
+// import 'package:gopher_eye/result_screen.dart';
+import 'package:gopher_eye/screens/result_screen.dart';
+import 'package:gopher_eye/services/api.dart';
+import 'package:gopher_eye/services/app_database.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key, this.plantId}) : super(key: key);

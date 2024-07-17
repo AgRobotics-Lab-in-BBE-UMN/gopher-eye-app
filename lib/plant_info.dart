@@ -1,12 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gopher_eye/image_data.dart';
+
 import 'package:gopher_eye/services/api.dart';
-import 'package:gopher_eye/api.dart';
-import 'package:gopher_eye/image_data.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,7 +14,6 @@ class PlantInfo extends StatefulWidget {
   final ImageData plantInfo;
 
   @override
-  // ignore: library_private_types_in_public_api
   _PlantInfoState createState() => _PlantInfoState();
 }
 
@@ -43,91 +41,6 @@ class _PlantInfoState extends State<PlantInfo> {
         ),
       ),
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                width: double.infinity,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Stack(children: <Widget>[
-                      Image.file(File(widget.plantInfo.image!)),
-                      Visibility(
-                          visible: areBoundingBoxesVisible,
-                          child: Positioned.fill(
-                              child: LayoutBuilder(
-                                  builder: (context, constraints) =>
-                                      CustomPaint(
-                                        painter: BoundingBoxes(
-                                            widget.plantInfo.boundingBoxes,
-                                            constraints.maxWidth,
-                                            constraints.maxHeight),
-                                      )))),
-                      Visibility(
-                          visible: areMasksVisible,
-                          child: Positioned.fill(
-                              child: Masks(
-                                  masks: widget.plantInfo.masks,
-                                  colors: maskColors)))
-                    ]),
-                    const SizedBox(height: 10.0),
-                    Text(
-                      "Name: ${widget.plantInfo.id}",
-                    ),
-                    const SizedBox(height: 10.0),
-                    Text(
-                      "Description: ${widget.plantInfo.id}",
-                    ),
-                    const SizedBox(height: 10.0),
-                    Text(
-                      "Status: ${widget.plantInfo.status}",
-                    ),
-                    const SizedBox(height: 10.0),
-                    if (widget.plantInfo.status == 'completed')
-                      Text(
-                        "disease: ${widget.plantInfo.id}",
-                      ),
-                    const SizedBox(height: 10.0),
-                    if (widget.plantInfo.status == 'completed')
-                      Text(
-                        "Plant Cure: ${widget.plantInfo.id}",
-                      ),
-                    const SizedBox(height: 10.0),
-                    Row(children: [
-                      const Text("Show Bounding Boxes"),
-                      Switch(
-                        value: areBoundingBoxesVisible,
-                        onChanged: (value) {
-                          setState(() {
-                            areBoundingBoxesVisible = value;
-                          });
-                        },
-                      )
-                    ]),
-                    Row(children: [
-                      const Text("Show Masks"),
-                      Switch(
-                        value: areMasksVisible,
-                        onChanged: (value) {
-                          setState(() {
-                            areMasksVisible = value;
-                          });
-                        },
-                      )
-                    ]),
-                    // Add a button to fetch the plant status
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (widget.plantInfo.id == null) {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          var plantId = prefs.getString('plant_id');
-                          if (plantId != null) {
-                            final status = await fetchPlantStatus(plantId);
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -241,51 +154,24 @@ class _PlantInfoState extends State<PlantInfo> {
                             final status =
                                 await fetchPlantStatus(widget.plantInfo.id!);
                             if (status != null) {
-                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('Plant status: $status'),
                                 ),
                               );
                             } else {
-                              // ignore: use_build_context_synchronously
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Failed to fetch plant status'),
                                 ),
                               );
                             }
-                          } else {
-                            // ignore: use_build_context_synchronously
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Plant ID not found'),
-                              ),
-                            );
                           }
-                        } else {
-                          final status =
-                              await fetchPlantStatus(widget.plantInfo.id!);
-                          if (status != null) {
-                            // ignore: use_build_context_synchronously
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Plant status: $status'),
-                              ),
-                            );
-                          } else {
-                            // ignore: use_build_context_synchronously
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Failed to fetch plant status'),
-                              ),
-                            );
-                          }
-                        }
-                      },
-                      child: const Center(child: Text('Fetch Plant Status')),
-                    ),
-                  ],
+                        },
+                        child: const Center(child: Text('Fetch Plant Status')),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -303,15 +189,11 @@ class _PlantInfoState extends State<PlantInfo> {
       if (status.isNotEmpty) {
         return status;
       } else {
-        if (kDebugMode) {
-          print('Failed to fetch plant status');
-        }
+        print('Failed to fetch plant status');
         return null;
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error occurred while fetching plant status: $e');
-      }
+      print('Error occurred while fetching plant status: $e');
       return null;
     }
   }
