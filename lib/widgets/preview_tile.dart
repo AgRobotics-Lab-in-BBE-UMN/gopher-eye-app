@@ -16,7 +16,6 @@ class PreviewTile extends StatefulWidget {
 }
 
 class _PreviewTileState extends State<PreviewTile> {
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
@@ -30,29 +29,29 @@ class _PreviewTileState extends State<PreviewTile> {
         "Date",
         style: TextStyle(fontSize: 12),
       ),
-      subtitle: const Column(
+      subtitle: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "View Result",
+          const Text(
+            "View Diagnosis",
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.w600,
               fontSize: 18,
             ),
           ),
-          SizedBox(height: 3.0),
+          const SizedBox(height: 3.0),
           Chip(
             backgroundColor: Colors.teal,
             elevation: 6,
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
               side: BorderSide(color: Colors.teal),
               borderRadius: BorderRadius.all(Radius.circular(20.0)),
             ),
             label: Text(
-              "Complete",
-              style: TextStyle(
+              widget.plantProcessedInfo.status!,
+              style: const TextStyle(
                 color: Colors.black,
                 fontSize: 13,
               ),

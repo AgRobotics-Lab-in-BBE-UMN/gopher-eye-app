@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:gopher_eye/home_screen.dart';
+import 'package:gopher_eye/screens/home_screen.dart';
 import 'package:gopher_eye/services/api.dart';
 
 import 'package:image_picker/image_picker.dart';
@@ -110,7 +110,7 @@ class CameraProvider with ChangeNotifier {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomeScreen(plantId: plantId),
+          builder: (context) => const HomeScreen(),
         ),
       );
     } else {
