@@ -4,7 +4,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gopher_eye/services/api.dart';
-import 'package:gopher_eye/screens/main_screen.dart';
+import 'package:gopher_eye/screens/home_screen.dart';
+// import 'package:gopher_eye/api.dart';
 import 'package:gopher_eye/plant_capture.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -122,7 +123,7 @@ class PlantUploadScreen extends StatelessWidget {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const MainScreen(),
+          builder: (context) => const HomeScreen(),
         ),
       );
     } else {
