@@ -50,6 +50,8 @@ dependencies:
   flutter_svg: ^2.0.9
   firebase_auth: ^5.1.1
   firebase_core: ^3.1.1
+  qr_code_scanner: ^1.0.1
+  flutter_barcode_scanner: ^2.0.0
 
 dev_dependencies:
   flutter_test:

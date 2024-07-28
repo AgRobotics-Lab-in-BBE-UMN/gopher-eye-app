@@ -1,8 +1,12 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:gopher_eye/camera_provider.dart';
+import 'package:gopher_eye/camera_provider.dart';
+import 'package:gopher_eye/home_screen.dart';
+import 'package:gopher_eye/widgets/qr_result_screen.dart';
 import 'package:provider/provider.dart';
 
 class CameraScreen extends StatefulWidget {
@@ -78,6 +82,12 @@ class _CameraStack extends State<CameraScreen> {
                                           });
                                         },
                                       ),
+                                      _buildIconButton(
+                                          icon: Icons.qr_code_scanner,
+                                          size: 40,
+                                          onPressed: () {
+                                            qrScanner();
+                                          }),
                                       _buildIconButton(
                                         icon: Icons.camera_alt_rounded,
                                         size: 40,
@@ -177,5 +187,14 @@ class _CameraStack extends State<CameraScreen> {
         onPressed: onPressed,
       ),
     );
+  }
+
+  Future<void> qrScanner() async {
+    String result;
+    result = await FlutterBarcodeScanner.scanBarcode(
+        "#ff6666", "Cancel", false, ScanMode.QR);
+    debugPrint(result);
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => HomeScreen()));
   }
 }
