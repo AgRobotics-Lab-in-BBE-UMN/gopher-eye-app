@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:gopher_eye/camera_provider.dart';
-import 'package:gopher_eye/camera_provider.dart';
-import 'package:gopher_eye/home_screen.dart';
+import 'package:gopher_eye/widgets/QR_Feature/main2.dart';
 import 'package:gopher_eye/widgets/qr_result_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -86,7 +85,19 @@ class _CameraStack extends State<CameraScreen> {
                                           icon: Icons.qr_code_scanner,
                                           size: 40,
                                           onPressed: () {
-                                            qrScanner();
+                                            if (provider.isInitialized) {
+                                              provider.disposeCameras();
+                                              provider.dispose();
+                                            }
+                                            Navigator.pop(context);
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const QRViewExample(),
+                                              ),
+                                            );
+                                            // qrScanner();
                                           }),
                                       _buildIconButton(
                                         icon: Icons.camera_alt_rounded,
@@ -195,6 +206,8 @@ class _CameraStack extends State<CameraScreen> {
         "#ff6666", "Cancel", false, ScanMode.QR);
     debugPrint(result);
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => HomeScreen()));
+        context,
+        MaterialPageRoute(
+            builder: (context) => QrResultScreen(qrResult: result)));
   }
 }

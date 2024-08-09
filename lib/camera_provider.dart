@@ -4,7 +4,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:gopher_eye/home_screen.dart';
 import 'package:gopher_eye/services/api.dart';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,9 +27,19 @@ class CameraProvider with ChangeNotifier {
         enableAudio: false,
       );
       await _controller?.initialize();
+
       _isInitialized = true;
       notifyListeners();
     }
+  }
+
+  Future<void> disposeCameras() async {
+    _cameras = await availableCameras();
+    _cameras.clear();
+    await _controller?.dispose();
+
+    _isInitialized = false;
+    notifyListeners();
   }
 
   //* switching camera
@@ -74,6 +83,7 @@ class CameraProvider with ChangeNotifier {
   @override
   void dispose() {
     _controller?.dispose();
+
     super.dispose();
   }
 
@@ -151,4 +161,6 @@ class CameraProvider with ChangeNotifier {
       return false;
     }
   }
+
+  //*QR Code
 }
