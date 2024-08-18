@@ -1,16 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-// import 'package:gopher_eye/api.dart';
-// import 'package:gopher_eye/app_database.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gopher_eye/camera_screen.dart';
 import 'package:gopher_eye/image_data.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gopher_eye/plant_info.dart';
 import 'package:gopher_eye/screens/result_screen.dart';
-// import 'package:gopher_eye/result_screen.dart';
 import 'package:gopher_eye/services/api.dart';
 import 'package:gopher_eye/services/app_database.dart';
+import 'package:gopher_eye/widgets/fields_feature/field_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, this.plantId});
@@ -37,6 +35,7 @@ class _HomeScreen extends State<HomeScreen> {
         shadowColor: Colors.black,
         toolbarHeight: 80,
         elevation: 3,
+        automaticallyImplyLeading: false,
         title: const SafeArea(
           minimum: EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 0.0),
           child: Text(
@@ -45,10 +44,34 @@ class _HomeScreen extends State<HomeScreen> {
           ),
         ),
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.more_horiz_outlined),
-          ),
+          TextButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FieldScreen(),
+                    ));
+              },
+              child: const Text("Fields")),
+          // IconButton(
+          //     onPressed: () {
+          //       Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //             builder: (context) => const ExcelScreen(),
+          //           ));
+          //     },
+          //     icon: const Icon(Icons.library_add_outlined)),
+
+          // IconButton(
+          //     onPressed: () {Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //             builder: (context) => const FieldScreen(),
+          //           ));}, icon: const Icon(Icons.note_alt_rounded)),
+          const SizedBox(
+            width: 10,
+          )
         ],
       ),
       body: Column(

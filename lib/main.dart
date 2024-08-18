@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gopher_eye/screens/login_screen.dart';
 import 'package:gopher_eye/screens/main_screen.dart';
 import 'package:gopher_eye/services/synchronizer.dart';
+import 'package:gopher_eye/widgets/fields_feature/field_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gopher_eye/services/app_database.dart';
 // import 'package:gopher_eye/app_database.dart';
@@ -29,7 +30,8 @@ void main() async {
     data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
     child: MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => CameraProvider())
+        ChangeNotifierProvider(create: (context) => CameraProvider()),
+        ChangeNotifierProvider(create: (context) => FieldProvider()),
       ],
       child: const MyApp(),
     ),
