@@ -45,8 +45,8 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
         debugShowCheckedModeBanner: false,
         title: "Gopher Eye Detection",
-        home: LoginScreen()
-        // home: HomeScreen()
+        // home: LoginScreen()
+        home: HomeScreen()
         );
   }
 }
