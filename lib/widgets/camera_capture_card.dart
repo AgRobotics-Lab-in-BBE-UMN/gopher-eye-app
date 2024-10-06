@@ -1,5 +1,7 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gopher_eye/camera_provider.dart';
 import 'package:gopher_eye/screens/camera_screen.dart';
 
 class CameraCaptureCard extends StatelessWidget{
