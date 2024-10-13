@@ -8,8 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:gopher_eye/preview_page.dart';
+import 'package:gopher_eye/providers/plot_provider.dart';
+import 'package:gopher_eye/widgets/mobile_scanner_with_overlay.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({super.key});
@@ -181,8 +184,10 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   Widget _buildCameraPreview(BuildContext context) {
-    const previewRatio = 9.0/17.0;
-    return Column(children: [
+    var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
+    var previewRatio = width / height;
+    return Expanded(child: Stack(children: [
       AspectRatio(
           aspectRatio: previewRatio,
           child: ClipRect(
@@ -195,7 +200,10 @@ class _CameraScreenState extends State<CameraScreen>
                         controller!,
                         key: const Key('camera_preview'),
                       ))))),
-      Container(
+      Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          padding: EdgeInsets.only(bottom: 60.0),
           color: Colors.transparent,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -203,9 +211,38 @@ class _CameraScreenState extends State<CameraScreen>
             children: [
               _buildGalleyButton(),
               _buildCaptureButton(context),
+              _buildQRScannerButton()
             ],
-          )),
-    ]);
+          ))),
+    ]));
+  }
+
+  InkWell _buildQRScannerButton() {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const MobileScannerWithOverlay(),
+          ),
+        );
+      },
+      child: const Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(
+            Icons.circle,
+            color: Colors.black38,
+            size: 60,
+          ),
+          Icon(
+            Icons.qr_code,
+            color: Colors.white,
+            size: 30,
+          ),
+        ],
+      ),
+    );
   }
 
   InkWell _buildCaptureButton(BuildContext context) {
@@ -298,15 +335,22 @@ class _CameraScreenState extends State<CameraScreen>
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
+    return Scaffold(
+        appBar: AppBar(
+            title: Consumer<PlotProvider>(builder: (context, plot, child) => Text('Camera: Site ${plot.plot}')),
+            backgroundColor: Colors.transparent,
+            titleTextStyle: const TextStyle(color: Colors.white, fontSize: 24),
+            leading: const BackButton(
+              color: Colors.white,
+            )),
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.black,
         body: _isCameraPermissionGranted
             ? _isCameraInitialized
                 ? Column(
                     children: [
-                      // _flashButtonsRibbon(),
                       _buildCameraPreview(context)
+                      // _flashButtonsRibbon(),
                     ],
                   )
                 : const Center(
@@ -344,102 +388,95 @@ class _CameraScreenState extends State<CameraScreen>
                   ),
                 ],
               ),
-      ),
     );
   }
 
   Padding _flashButtonsRibbon() {
     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                      child: SingleChildScrollView(
-                        physics: const BouncingScrollPhysics(),
-                        child: Column(
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(top: 50.0),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                  0.0, 0.0, 0.0, 0.0),
-                              // 0.0,  8.0, 0.0, 8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  InkWell(
-                                    onTap: () async {
-                                      setState(() {
-                                        _currentFlashMode = FlashMode.off;
-                                      });
-                                      await controller!.setFlashMode(
-                                        FlashMode.off,
-                                      );
-                                    },
-                                    child: Icon(
-                                      Icons.flash_off,
-                                      color:
-                                          _currentFlashMode == FlashMode.off
-                                              ? Colors.amber
-                                              : Colors.white,
-                                    ),
-                                  ),
-                                  InkWell(
-                                    onTap: () async {
-                                      setState(() {
-                                        _currentFlashMode = FlashMode.auto;
-                                      });
-                                      await controller!.setFlashMode(
-                                        FlashMode.auto,
-                                      );
-                                    },
-                                    child: Icon(
-                                      Icons.flash_auto,
-                                      color:
-                                          _currentFlashMode == FlashMode.auto
-                                              ? Colors.amber
-                                              : Colors.white,
-                                    ),
-                                  ),
-                                  InkWell(
-                                    onTap: () async {
-                                      setState(() {
-                                        _currentFlashMode = FlashMode.always;
-                                      });
-                                      await controller!.setFlashMode(
-                                        FlashMode.always,
-                                      );
-                                    },
-                                    child: Icon(
-                                      Icons.flash_on,
-                                      color: _currentFlashMode ==
-                                              FlashMode.always
-                                          ? Colors.amber
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                  InkWell(
-                                    onTap: () async {
-                                      setState(() {
-                                        _currentFlashMode = FlashMode.torch;
-                                      });
-                                      await controller!.setFlashMode(
-                                        FlashMode.torch,
-                                      );
-                                    },
-                                    child: Icon(
-                                      Icons.highlight,
-                                      color:
-                                          _currentFlashMode == FlashMode.torch
-                                              ? Colors.amber
-                                              : Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    );
+      padding: const EdgeInsets.symmetric(horizontal: 0.0),
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 50.0),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+              // 0.0,  8.0, 0.0, 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: () async {
+                      setState(() {
+                        _currentFlashMode = FlashMode.off;
+                      });
+                      await controller!.setFlashMode(
+                        FlashMode.off,
+                      );
+                    },
+                    child: Icon(
+                      Icons.flash_off,
+                      color: _currentFlashMode == FlashMode.off
+                          ? Colors.amber
+                          : Colors.white,
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () async {
+                      setState(() {
+                        _currentFlashMode = FlashMode.auto;
+                      });
+                      await controller!.setFlashMode(
+                        FlashMode.auto,
+                      );
+                    },
+                    child: Icon(
+                      Icons.flash_auto,
+                      color: _currentFlashMode == FlashMode.auto
+                          ? Colors.amber
+                          : Colors.white,
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () async {
+                      setState(() {
+                        _currentFlashMode = FlashMode.always;
+                      });
+                      await controller!.setFlashMode(
+                        FlashMode.always,
+                      );
+                    },
+                    child: Icon(
+                      Icons.flash_on,
+                      color: _currentFlashMode == FlashMode.always
+                          ? Colors.amber
+                          : Colors.white,
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () async {
+                      setState(() {
+                        _currentFlashMode = FlashMode.torch;
+                      });
+                      await controller!.setFlashMode(
+                        FlashMode.torch,
+                      );
+                    },
+                    child: Icon(
+                      Icons.highlight,
+                      color: _currentFlashMode == FlashMode.torch
+                          ? Colors.amber
+                          : Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
