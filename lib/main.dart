@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:gopher_eye/providers/plot_provider.dart';
 import 'package:gopher_eye/screens/login_screen.dart';
 import 'package:gopher_eye/screens/home_screen.dart';
 import 'package:gopher_eye/services/synchronizer.dart';
@@ -7,8 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gopher_eye/services/app_database.dart';
 // import 'package:gopher_eye/app_database.dart';
 import 'package:gopher_eye/camera_provider.dart';
-import 'package:gopher_eye/camera_provider.dart';
-import 'package:gopher_eye/screens/home_screen.dart';
 // import 'package:gopher_eye/synchronizer.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,14 +25,9 @@ void main() async {
         Synchronizer(apiUrl: prefs.getString('serverUrl')!);
     synchronizer.syncData();
   });
-  runApp(MediaQuery(
-    data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
-    child: MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => CameraProvider())
-      ],
-      child: const MyApp(),
-    ),
+  runApp(MultiProvider(
+    providers: [ChangeNotifierProvider(create: (context) => PlotProvider())],
+    child: const MyApp(),
   ));
 }
 
@@ -46,8 +40,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: "Gopher Eye Detection",
         // home: LoginScreen()
-        home: HomeScreen()
-        );
+        home: HomeScreen());
   }
 }
 
