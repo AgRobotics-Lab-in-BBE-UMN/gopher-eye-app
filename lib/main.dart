@@ -4,13 +4,12 @@ import 'package:gopher_eye/providers/plot_provider.dart';
 import 'package:gopher_eye/screens/login_screen.dart';
 import 'package:gopher_eye/screens/home_screen.dart';
 import 'package:gopher_eye/services/synchronizer.dart';
+import 'package:gopher_eye/utils/firebase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gopher_eye/services/app_database.dart';
 // import 'package:gopher_eye/app_database.dart';
-import 'package:gopher_eye/camera_provider.dart';
 // import 'package:gopher_eye/synchronizer.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,22 +24,30 @@ void main() async {
         Synchronizer(apiUrl: prefs.getString('serverUrl')!);
     synchronizer.syncData();
   });
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String username = prefs.getString('username') ?? '';
+  String password = prefs.getString('password') ?? '';
+  bool loggedIn = await signIn(username, password);
+
+  Widget screen = loggedIn ? const HomeScreen() : const LoginScreen();
   runApp(MultiProvider(
     providers: [ChangeNotifierProvider(create: (context) => PlotProvider())],
-    child: const MyApp(),
+    child: MyApp(screen: screen),
   ));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Widget screen;
+  
+  const MyApp({super.key, required this.screen});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: "Gopher Eye Detection",
-        // home: LoginScreen()
-        home: HomeScreen());
+        home: screen);
+    // home: HomeScreen());
   }
 }
 

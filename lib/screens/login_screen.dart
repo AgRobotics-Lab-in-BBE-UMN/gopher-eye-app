@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gopher_eye/screens/home_screen.dart';
+import 'package:gopher_eye/utils/firebase.dart';
 import 'package:gopher_eye/widgets/bottom_navigator_bar.dart';
 import 'package:gopher_eye/screens/signup_screen.dart';
 import 'package:gopher_eye/utils/validators.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final _formKey = GlobalKey<FormState>();
 
@@ -19,31 +22,6 @@ class _LoginScreen extends State<StatefulWidget> {
   final passwordController = TextEditingController();
   bool hidden = true;
   bool loginWarningVisible = false;
-
-  Future<bool> signIn(String emailAddress, String password) async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailAddress,
-        password: password,
-      );
-      return true;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        if (kDebugMode) {
-          print('No user found for that email.');
-        }
-      } else if (e.code == 'wrong-password') {
-        if (kDebugMode) {
-          print('Wrong password provided for that user.');
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
-    }
-    return false;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,11 +132,19 @@ class _LoginScreen extends State<StatefulWidget> {
                                 .then((value) => {
                                       if (value)
                                         {
+                                          SharedPreferences.getInstance()
+                                              .then((prefs) {
+                                            prefs.setString('username',
+                                                emailController.text);
+                                            prefs.setString('password',
+                                                passwordController.text);
+                                          }),
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
-                                                  const BottomNavigationBarModel(),
+                                                const HomeScreen(),
+                                                  // const BottomNavigationBarModel(),
                                             ),
                                           )
                                         }
