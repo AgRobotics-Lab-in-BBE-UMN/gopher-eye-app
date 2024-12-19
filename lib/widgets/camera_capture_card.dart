@@ -13,7 +13,7 @@ class CameraCaptureCard extends StatelessWidget{
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Identify Your Diseases!',
+                  'Order your pizza!',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
