@@ -5,6 +5,7 @@ import 'package:gopher_eye/image_data.dart';
 import 'package:gopher_eye/plant_capture.dart';
 import 'package:gopher_eye/plant_info.dart';
 import 'package:gopher_eye/screens/camera_screen.dart';
+import 'package:gopher_eye/screens/map_screen.dart';
 import 'package:gopher_eye/screens/result_screen.dart';
 import 'package:gopher_eye/services/api.dart';
 import 'package:gopher_eye/services/app_database.dart';
@@ -176,6 +177,18 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const MapScreen(),
+            ),
+          );
+        },
+        child: const Icon(Icons.map),
+        tooltip: 'Map',
       ),
     );
   }
