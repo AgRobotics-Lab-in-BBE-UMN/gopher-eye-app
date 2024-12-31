@@ -35,3 +35,11 @@ dart pub global activate flutterfire_cli
 ```bash
 flutterfire configure
 ```
+
+### Google Maps API Key
+Add the following file to you project
+
+ios/Runner/Base.lproj/google_maps_api_key.txt
+```
+GOOGLE_MAPS_API_KEY
+```
