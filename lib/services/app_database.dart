@@ -78,6 +78,19 @@ class AppDatabase {
     } catch (e) {
       debugPrint('Failed to create "bounding_box_corners" table: $e');
     }
+
+    try {
+      await db.execute('''
+        CREATE TABLE photo_coords (
+          photo_id TEXT NOT NULL,
+          latitude REAL NOT NULL,
+          longitude REAL NOT NULL,
+          FOREIGN KEY (photo_id) REFERENCES images (id)
+          )
+      ''');
+    } catch (e) {
+      debugPrint('Failed to create "photo_coords" table: $e');
+    }
   }
 
   static Future<void> insertImage(ImageData image,
@@ -94,8 +107,9 @@ class AppDatabase {
         },
         conflictAlgorithm: ConflictAlgorithm.replace);
 
-      await insertMasks(image.id!, image.masks ?? [], databaseName: databaseName);
-      await insertBoundingBoxes(image.id!, image.boundingBoxes ?? [], databaseName: databaseName);
+    await insertMasks(image.id!, image.masks ?? [], databaseName: databaseName);
+    await insertBoundingBoxes(image.id!, image.boundingBoxes ?? [],
+        databaseName: databaseName);
   }
 
   static Future<void> insertMasks(String imageId, List<List<double>> masks,
@@ -143,6 +157,25 @@ class AppDatabase {
     }
   }
 
+  static Future<void> insertPhotoCoords(
+      String photoId, double Latitude, double Longitude,
+      {String databaseName = defaultDatabaseName}) async {
+    String dbPath = join(await getDatabasesPath(), databaseName);
+    Database database = await openDatabase(dbPath);
+    try {
+      await database.insert(
+          'photo_coords',
+          {
+            "photo_id": photoId,
+            "latitude": Latitude,
+            "longitude": Longitude,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace);
+    } catch (e) {
+      debugPrint('Failed to insert Photo Coordinates: $e');
+    }
+  }
+
   static Future<List<String>> getPlantIds(
       {String databaseName = defaultDatabaseName}) async {
     String dbPath = join(await getDatabasesPath(), databaseName);
@@ -163,11 +196,13 @@ class AppDatabase {
     String dbPath = join(await getDatabasesPath(), databaseName);
     Database database = await openDatabase(dbPath);
 
-    List<Map<String, Object?>> results = await database.query('images', columns: ["id"]);
+    List<Map<String, Object?>> results =
+        await database.query('images', columns: ["id"]);
 
     List<ImageData> images = [];
     for (Map<String, Object?> result in results) {
-      ImageData? image = await getImage(result['id'] as String, databaseName: databaseName);
+      ImageData? image =
+          await getImage(result['id'] as String, databaseName: databaseName);
       if (image != null) {
         images.add(image);
       }
@@ -188,8 +223,10 @@ class AppDatabase {
       return null;
     }
 
-    List<List<double>> masks = await getMasks(imageId, databaseName: databaseName);
-    List<List<double>> boundingBoxes = await getBoundingBoxes(imageId, databaseName: databaseName);
+    List<List<double>> masks =
+        await getMasks(imageId, databaseName: databaseName);
+    List<List<double>> boundingBoxes =
+        await getBoundingBoxes(imageId, databaseName: databaseName);
 
     Map<String, Object?> result = results.first;
     return ImageData(
@@ -273,5 +310,42 @@ class AppDatabase {
     }
 
     return boundingBoxes;
+  }
+// ------------------------
+
+  static Future<List<Map<String, dynamic>>> getAllPhotoCoords(
+      {String databaseName = defaultDatabaseName}) async {
+    String dbPath = join(await getDatabasesPath(), databaseName);
+    Database database = await openDatabase(dbPath);
+
+    List<Map<String, Object?>> results = await database
+        .query('photo_coords', columns: ["photo_id", "latitude", "longitude"]);
+
+    return results
+        .map((result) => {
+              'photo_id': result['photo_id'] as String,
+              'latitude': result['latitude'] as double?,
+              'longitude': result['longitude'] as double?
+            })
+        .toList();
+  }
+
+  static Future<Map<String, dynamic>?> getPhotoCoords(String photoId,
+      {String databaseName = defaultDatabaseName}) async {
+    String dbPath = join(await getDatabasesPath(), databaseName);
+    Database database = await openDatabase(dbPath);
+
+    List<Map<String, Object?>> results = await database.query('photo_coords',
+        where: 'photo_id = ?', whereArgs: [photoId], limit: 1);
+
+    if (results.isEmpty) {
+      return null;
+    }
+
+    return {
+      'photo_id': results.first['photo_id'] as String,
+      'latitude': results.first['latitude'] as double,
+      'longitude': results.first['longitude'] as double
+    };
   }
 }

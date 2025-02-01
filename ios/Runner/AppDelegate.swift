@@ -17,7 +17,7 @@ import GoogleMaps
       return false
     }
       
-    GMSServices.provideAPIKey(googleMapKey)// specify your API key in the application delegate
+    GMSServices.provideAPIKey(googleMapKey)
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

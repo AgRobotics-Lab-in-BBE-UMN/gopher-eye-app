@@ -190,6 +190,75 @@ void main() {
     }
   });
 
+  test('Test photo_coords insertion', () async {
+    try {
+      await AppDatabase.initDatabase(databaseName: 'test.db');
+
+      String photoId = 'test_photo_id';
+      double Latitude = 44.9747;
+      double Longitude = -93.2354;
+
+      AppDatabase.insertPhotoCoords(photoId, Latitude, Longitude,
+          databaseName: 'test.db');
+
+      String databasePath = join(await getDatabasesPath(), 'test.db');
+      Database db = await openDatabase(databasePath);
+
+      List<Map<String, dynamic>> result = await db
+          .query('photo_coords', where: 'photo_id = ?', whereArgs: [photoId]);
+      // test 1
+      expect(result.length, 1);
+      expect(result[0]['photo_id'], photoId);
+      expect(result[0]['latitude'], Latitude);
+      expect(result[0]['longitude'], Longitude);
+    } finally {
+      await deleteDatabase(join(await getDatabasesPath(), 'test.db'));
+    }
+  });
+
+  test('Test get photo_coords by photo_id', () async {
+    try {
+      await AppDatabase.initDatabase(databaseName: 'test.db');
+
+      String photoId = 'test_photo_id';
+      double Latitude = 44.9747;
+      double Longitude = -93.2354;
+
+      AppDatabase.insertPhotoCoords(photoId, Latitude, Longitude,
+          databaseName: 'test.db');
+
+      Map<String, dynamic>? result =
+          await AppDatabase.getPhotoCoords(photoId, databaseName: 'test.db');
+      // test 1
+      expect(result?['photo_id'], photoId);
+      expect(result?['latitude'], Latitude);
+      expect(result?['longitude'], Longitude);
+    } finally {
+      await deleteDatabase(join(await getDatabasesPath(), 'test.db'));
+    }
+  });
+
+  test('Test get photo_coords all', () async {
+    try {
+      await AppDatabase.initDatabase(databaseName: 'test.db');
+
+      String photoId = 'test_photo_id';
+      double Latitude = 44.9747; // 'test_Latitude';
+      double Longitude = -93.2354; // 'test Longitude';
+
+      AppDatabase.insertPhotoCoords(photoId, Latitude, Longitude,
+          databaseName: 'test.db');
+
+      List<Map<String, dynamic>?> result =
+          await AppDatabase.getAllPhotoCoords(databaseName: 'test.db');
+      expect(result?[0]?['photo_id'], photoId);
+      expect(result?[0]?['latitude'], Latitude);
+      expect(result?[0]?['longitude'], Longitude);
+    } finally {
+      await deleteDatabase(join(await getDatabasesPath(), 'test.db'));
+    }
+  });
+
   test('Test get plant ids', () async {
     try {
       await AppDatabase.initDatabase(databaseName: 'test.db');
