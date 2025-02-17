@@ -11,7 +11,7 @@ import GoogleMaps
     let keyPath = Bundle.main.path(forResource: "google_maps_api_key", ofType: "txt")
     let googleMapKey: String
     do {
-      googleMapKey = try String(contentsOfFile: keyPath!, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
+       googleMapKey = try String(contentsOfFile: keyPath!, encoding: .utf8).trimmingCharacters(in: .whitespacesAndNewlines)
     } catch {
       print("Error reading Google Maps API key: \(error)")
       return false

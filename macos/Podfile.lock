@@ -115,10 +115,10 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/video_player_avfoundation/darwin
 
 SPEC CHECKSUMS:
-  file_selector_macos: 6280b52b459ae6c590af5d78fc35c7267a3c4b31
+  file_selector_macos: cc3858c981fe6889f364731200d6232dac1d812d
   Firebase: 374a441a91ead896215703a674d58cdb3e9d772b
-  firebase_auth: 43a567c86cf1df6de4360d2f8c1d06aa0edd2e36
-  firebase_core: 74979c022826e0f704c32008f9b132b5f3f4fd16
+  firebase_auth: 34e903201f1002a3e65e13aebc5cac36b4d84339
+  firebase_core: 6d9bb8b0ea817e8fe0d928177d42275b45fdba6f
   FirebaseAppCheckInterop: 347aa09a805219a31249b58fc956888e9fcb314b
   FirebaseAuth: 0304982cfe00df8d49bf533bc4becd3de36c7122
   FirebaseAuthInterop: a919d415797d23b7bfe195a04f322b86c65020ef
@@ -128,11 +128,11 @@ SPEC CHECKSUMS:
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   GoogleUtilities: 26a3abef001b6533cf678d3eb38fd3f614b7872d
   GTMSessionFetcher: 923b710231ad3d6f3f0495ac1ced35421e07d9a6
-  mobile_scanner: 0e365ed56cad24f28c0fd858ca04edefb40dfac3
-  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
-  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
-  sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
-  video_player_avfoundation: 2cef49524dd1f16c5300b9cd6efd9611ce03639b
+  mobile_scanner: 07710d6b9b2c220ae899de2d7ecf5d77ffa56333
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
+  video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
 
 PODFILE CHECKSUM: 9ebaf0ce3d369aaa26a9ea0e159195ed94724cf3
 

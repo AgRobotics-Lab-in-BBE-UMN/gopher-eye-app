@@ -52,7 +52,8 @@ void main() {
               1,
             ],
             [0.25, 0.25, 0.75, 0.75]
-          ]);
+          ],
+          labels: ['Healthy_Leaf', 'Downy_Leaf']);
 
       AppDatabase.insertImage(image, databaseName: 'test.db');
 
@@ -84,7 +85,8 @@ void main() {
           boundingBoxes: [
             [0, 0, 1, 1],
             [0.25, 0.25, 0.75, 0.75]
-          ]);
+          ],
+          labels: ['Healthy_Leaf', 'Downy_Leaf']);
 
       await AppDatabase.insertImage(image, databaseName: 'test.db');
 
@@ -92,7 +94,7 @@ void main() {
       Database db = await openDatabase(databasePath);
 
       List<Map<String, Object?>> results = await db.rawQuery('''
-          SELECT img.id AS 'image_id', m.id AS 'mask_id', mp.path_order AS 'order', mp.x AS x, mp.y AS y
+          SELECT img.id AS 'image_id', m.id AS 'mask_id', m.label AS 'label', mp.path_order AS 'order', mp.x AS x, mp.y AS y
           FROM images AS img
           LEFT JOIN masks AS m ON img.id = m.image_id
           LEFT JOIN mask_points AS mp ON m.id = mp.mask_id
@@ -103,36 +105,42 @@ void main() {
       // Test point 0
       expect(results[0]['image_id'], 'test_image_id');
       expect(results[0]['mask_id'], 1);
+      expect(results[0]['label'], 'Healthy_Leaf');
       expect(results[0]['x'], 0);
       expect(results[0]['y'], 0);
 
       // Test point 1
       expect(results[1]['image_id'], 'test_image_id');
       expect(results[1]['mask_id'], 1);
+      expect(results[1]['label'], 'Healthy_Leaf');
       expect(results[1]['x'], 0);
       expect(results[1]['y'], 1);
 
       // Test point 2
       expect(results[2]['image_id'], 'test_image_id');
       expect(results[2]['mask_id'], 1);
+      expect(results[2]['label'], 'Healthy_Leaf');
       expect(results[2]['x'], 1);
       expect(results[2]['y'], 1);
 
       // Test point 3
       expect(results[3]['image_id'], 'test_image_id');
       expect(results[3]['mask_id'], 2);
+      expect(results[3]['label'], 'Downy_Leaf');
       expect(results[3]['x'], 0);
       expect(results[3]['y'], 0);
 
       // Test point 4
       expect(results[4]['image_id'], 'test_image_id');
       expect(results[4]['mask_id'], 2);
+      expect(results[4]['label'], 'Downy_Leaf');
       expect(results[4]['x'], 1);
       expect(results[4]['y'], 1);
 
       // Test point 5
       expect(results[5]['image_id'], 'test_image_id');
       expect(results[5]['mask_id'], 2);
+      expect(results[5]['label'], 'Downy_Leaf');
       expect(results[5]['x'], 1);
       expect(results[5]['y'], 0);
     } finally {
@@ -154,7 +162,8 @@ void main() {
           boundingBoxes: [
             [0, 0, 1, 1],
             [0.25, 0.25, 0.75, 0.75]
-          ]);
+          ],
+          labels: ['Healthy_Leaf', 'Downy_Leaf']);
 
       await AppDatabase.insertImage(image, databaseName: 'test.db');
 
@@ -162,7 +171,7 @@ void main() {
       Database db = await openDatabase(databasePath);
 
       List<Map<String, Object?>> results = await db.rawQuery('''
-          SELECT img.id AS 'image_id', bb.id AS 'bounding_box_id', bbc.x1 AS x1, bbc.y1 AS y1, bbc.x2 AS x2, bbc.y2 AS y2
+          SELECT img.id AS 'image_id', bb.id AS 'bounding_box_id', bb.label AS label, bbc.x1 AS x1, bbc.y1 AS y1, bbc.x2 AS x2, bbc.y2 AS y2
           FROM images AS img
           LEFT JOIN bounding_boxes AS bb ON img.id = bb.image_id
           LEFT JOIN bounding_box_corners AS bbc ON bb.id = bbc.bounding_box_id
@@ -173,6 +182,7 @@ void main() {
       // Test bounding box 0
       expect(results[0]['image_id'], 'test_image_id');
       expect(results[0]['bounding_box_id'], 1);
+      expect(results[0]['label'], 'Healthy_Leaf');
       expect(results[0]['x1'], 0);
       expect(results[0]['y1'], 0);
       expect(results[0]['x2'], 1);
@@ -181,6 +191,7 @@ void main() {
       // Test bounding box 1
       expect(results[1]['image_id'], 'test_image_id');
       expect(results[1]['bounding_box_id'], 2);
+      expect(results[1]['label'], 'Downy_Leaf');
       expect(results[1]['x1'], 0.25);
       expect(results[1]['y1'], 0.25);
       expect(results[1]['x2'], 0.75);
@@ -231,7 +242,8 @@ void main() {
           boundingBoxes: [
             [0, 0, 1, 1],
             [0.25, 0.25, 0.75, 0.75]
-          ]);
+          ], 
+          labels: ['Healthy_Leaf', 'Downy_Leaf']);
 
       await AppDatabase.insertImage(image1, databaseName: 'test.db');
 
@@ -268,7 +280,8 @@ void main() {
           boundingBoxes: [
             [0, 0, 1, 1],
             [0.25, 0.25, 0.75, 0.75]
-          ]);
+          ],
+          labels: ['Healthy_Leaf', 'Downy_Leaf']);
 
       await AppDatabase.insertImage(image1, databaseName: 'test.db');
 
@@ -295,7 +308,8 @@ void main() {
           boundingBoxes: [
             [0, 0, 1, 1],
             [0.25, 0.25, 0.75, 0.75]
-          ]);
+          ],
+          labels: ['Healthy_Leaf', 'Downy_Leaf']);
 
       await AppDatabase.insertImage(image, databaseName: 'test.db');
 
@@ -344,11 +358,12 @@ void main() {
           boundingBoxes: [
             [0.0, 0.0, 1.0, 1.0],
             [0.25, 0.25, 0.75, 0.75]
-          ]);
+          ],
+          labels: ['Healthy_Leaf', 'Downy_Leaf']);
 
       await AppDatabase.insertImage(image, databaseName: 'test.db');
       await AppDatabase.insertBoundingBoxes(
-          image.id as String, image.boundingBoxes!,
+          image.id as String, image.boundingBoxes!, image.labels!,
           databaseName: 'test.db');
 
       List<List<double>> _ = await AppDatabase.getBoundingBoxes(

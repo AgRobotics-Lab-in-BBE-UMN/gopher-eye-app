@@ -31,6 +31,7 @@ class AppDatabase {
         CREATE TABLE masks (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           image_id TEXT NOT NULL,
+          label TEXT,
           FOREIGN KEY (image_id) REFERENCES images (id)
         )
       ''');
@@ -57,6 +58,7 @@ class AppDatabase {
         CREATE TABLE bounding_boxes (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           image_id TEXT NOT NULL,
+          label TEXT,
           FOREIGN KEY (image_id) REFERENCES images (id)
         )
       ''');
@@ -94,29 +96,30 @@ class AppDatabase {
         },
         conflictAlgorithm: ConflictAlgorithm.replace);
 
-      await insertMasks(image.id!, image.masks ?? [], databaseName: databaseName);
-      await insertBoundingBoxes(image.id!, image.boundingBoxes ?? [], databaseName: databaseName);
+    await insertMasks(image.id!, image.masks ?? [], image.labels ?? [], databaseName: databaseName);
+    await insertBoundingBoxes(image.id!, image.boundingBoxes ?? [], image.labels ?? [], databaseName: databaseName);
   }
 
-  static Future<void> insertMasks(String imageId, List<List<double>> masks,
+  static Future<void> insertMasks(String imageId, List<List<double>> masks, List<String> labels,
       {String databaseName = defaultDatabaseName}) async {
     String dbPath = join(await getDatabasesPath(), databaseName);
     Database database = await openDatabase(dbPath);
 
     try {
-      for (List<double> mask in masks) {
-        int maskId = await database.insert('masks', {'image_id': imageId});
-        database = await openDatabase(dbPath);
-        for (int i = 0; i < mask.length; i += 2) {
+      for (int i = 0; i < masks.length; i++) {
+        List<double> mask = masks[i];
+        String label = labels[i];
+        int maskId = await database.insert('masks', {'image_id': imageId, 'label': label});
+        for (int j = 0; j < mask.length; j += 2) {
           await database.insert(
-              'mask_points',
-              {
-                'mask_id': maskId,
-                'path_order': (i ~/ 2) + 1,
-                'x': mask[i],
-                'y': mask[i + 1]
-              },
-              conflictAlgorithm: ConflictAlgorithm.replace);
+          'mask_points',
+          {
+            'mask_id': maskId,
+            'path_order': (j ~/ 2) + 1,
+            'x': mask[j],
+            'y': mask[j + 1]
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace);
         }
       }
     } catch (e) {
@@ -125,21 +128,34 @@ class AppDatabase {
   }
 
   static Future<void> insertBoundingBoxes(
-      String imageId, List<List<double>> boundingBoxes,
+      String imageId, List<List<double>> boundingBoxes, List<String> labels,
       {String databaseName = defaultDatabaseName}) async {
     String dbPath = join(await getDatabasesPath(), databaseName);
     Database database = await openDatabase(dbPath);
 
-    for (List<double> boundingBox in boundingBoxes) {
+    for (int i = 0; i < boundingBoxes.length; i++) {
+      List<double> boundingBox = boundingBoxes[i];
+      String label = labels[i];
       int boundingBoxId =
-          await database.insert('bounding_boxes', {'image_id': imageId});
+        await database.insert('bounding_boxes', {'image_id': imageId, 'label': label});
       await database.insert('bounding_box_corners', {
-        'bounding_box_id': boundingBoxId,
-        'x1': boundingBox[0],
-        'y1': boundingBox[1],
-        'x2': boundingBox[2],
-        'y2': boundingBox[3]
+      'bounding_box_id': boundingBoxId,
+      'x1': boundingBox[0],
+      'y1': boundingBox[1],
+      'x2': boundingBox[2],
+      'y2': boundingBox[3]
       });
+    }
+  }
+
+  static Future<void> insertLabels(
+      String imageId, List<String> labels,
+      {String databaseName = defaultDatabaseName}) async {
+    String dbPath = join(await getDatabasesPath(), databaseName);
+    Database database = await openDatabase(dbPath);
+
+    for (String label in labels) {
+      await database.insert('labels', {'image_id': imageId, 'label': label});
     }
   }
 
@@ -190,6 +206,8 @@ class AppDatabase {
 
     List<List<double>> masks = await getMasks(imageId, databaseName: databaseName);
     List<List<double>> boundingBoxes = await getBoundingBoxes(imageId, databaseName: databaseName);
+    List<String> labels = await getLabels(imageId, databaseName: databaseName);
+
 
     Map<String, Object?> result = results.first;
     return ImageData(
@@ -197,7 +215,8 @@ class AppDatabase {
         image: result['image_file_path'] as String,
         status: result['status'] as String,
         masks: masks,
-        boundingBoxes: boundingBoxes);
+        boundingBoxes: boundingBoxes,
+        labels: labels);
   }
 
   static Future<List<List<double>>> getMasks(String imageId,
@@ -206,7 +225,7 @@ class AppDatabase {
     Database database = await openDatabase(dbPath);
 
     List<Map<String, Object?>> results = await database.rawQuery('''
-          SELECT img.id AS 'image_id', m.id AS 'mask_id', mp.path_order AS 'order', mp.x AS x, mp.y AS y
+          SELECT img.id AS 'image_id', m.id AS 'mask_id', m.label AS 'label', mp.path_order AS 'order', mp.x AS x, mp.y AS y
           FROM images AS img
           LEFT JOIN masks AS m ON img.id = m.image_id
           LEFT JOIN mask_points AS mp ON m.id = mp.mask_id
@@ -241,7 +260,7 @@ class AppDatabase {
     Database database = await openDatabase(dbPath);
 
     List<Map<String, Object?>> results = await database.rawQuery('''
-          SELECT img.id AS 'image_id', bb.id AS 'bounding_box_id', bbc.x1 AS x1, bbc.y1 AS y1, bbc.x2 AS x2, bbc.y2 AS y2
+          SELECT img.id AS 'image_id', bb.id AS 'bounding_box_id', bb.label AS 'label', bbc.x1 AS x1, bbc.y1 AS y1, bbc.x2 AS x2, bbc.y2 AS y2
           FROM images AS img
           LEFT JOIN bounding_boxes AS bb ON img.id = bb.image_id
           LEFT JOIN bounding_box_corners AS bbc ON bb.id = bbc.bounding_box_id
@@ -273,5 +292,26 @@ class AppDatabase {
     }
 
     return boundingBoxes;
+  }
+
+  static Future<List<String>> getLabels(String imageId,
+      {String databaseName = defaultDatabaseName}) async {
+    String dbPath = join(await getDatabasesPath(), databaseName);
+    Database database = await openDatabase(dbPath);
+
+    List<Map<String, Object?>> results = await database.rawQuery('''
+          SELECT img.id AS 'image_id', m.id AS 'mask_id', m.label AS 'label'
+          FROM images AS img
+          LEFT JOIN masks AS m ON img.id = m.image_id
+          WHERE img.id = '$imageId';
+          ORDER BY m.id
+        ''');
+
+    List<String> labels = [];
+    for (Map<String, Object?> result in results) {
+      labels.add(result['label'] as String);
+    }
+
+    return labels;
   }
 }

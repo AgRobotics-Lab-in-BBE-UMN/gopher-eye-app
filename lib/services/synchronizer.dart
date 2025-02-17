@@ -31,8 +31,8 @@ class Synchronizer {
           } else if (imageData.status != 'complete') {
             ImageData updatedImageData = await api.getPlantData(plantId);
             await AppDatabase.insertBoundingBoxes(
-                plantId, updatedImageData.boundingBoxes!);
-            await AppDatabase.insertMasks(plantId, updatedImageData.masks!);
+                plantId, updatedImageData.boundingBoxes!, updatedImageData.labels!);
+            await AppDatabase.insertMasks(plantId, updatedImageData.masks!, updatedImageData.labels!);
           }
         } catch (e) {
           if (kDebugMode) {

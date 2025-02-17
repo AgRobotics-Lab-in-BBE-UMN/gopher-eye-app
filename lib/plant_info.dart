@@ -22,10 +22,22 @@ class _PlantInfoState extends State<PlantInfo> {
   bool areMasksVisible = true;
   List<Color> maskColors = [];
 
-  void initSatte() {
+  void initState() {
     super.initState();
-    for (int i = 0; i < widget.plantInfo.masks!.length; i += 1) {
-      maskColors.add(Color((Random().nextDouble() * 0xFFFFFF).toInt()));
+    for (int i = 0; i < widget.plantInfo.labels!.length; i++) {
+      switch (widget.plantInfo.labels![i]) {
+        case 'Healthy-Leaf':
+          maskColors.add(Colors.green);
+          break;
+        case 'Powdery-Leaf':
+          maskColors.add(const Color.fromARGB(255, 112, 174, 179));
+          break;
+        case 'Downy-Leaf':
+          maskColors.add(const Color.fromARGB(255, 203, 89, 176));
+          break;
+        default:
+          maskColors.add(const Color.fromARGB(255, 2, 1, 1));
+    }
     }
   }
 
@@ -53,28 +65,29 @@ class _PlantInfoState extends State<PlantInfo> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        child: Stack(children: <Widget>[
-                          Image.file(File(widget.plantInfo.image!)),
-                          Visibility(
-                              visible: areBoundingBoxesVisible,
-                              child: Positioned.fill(
-                                  child: LayoutBuilder(
-                                      builder: (context, constraints) =>
-                                          CustomPaint(
-                                            painter: BoundingBoxes(
-                                                widget.plantInfo.boundingBoxes,
-                                                constraints.maxWidth,
-                                                constraints.maxHeight),
-                                          )))),
-                          Visibility(
-                              visible: areMasksVisible,
-                              child: Positioned.fill(
-                                  child: Masks(
-                                      masks: widget.plantInfo.masks,
-                                      colors: maskColors)))
-                        ]),
-                      ),
+                      Stack(children: <Widget>[
+                        Image.file(File(widget.plantInfo.image!)),
+                        Visibility(
+                            visible: areMasksVisible,
+                            child: Positioned.fill(
+                                child: Masks(
+                                    masks: widget.plantInfo.masks,
+                                    colors: maskColors))),
+                        Visibility(
+                            visible: areBoundingBoxesVisible,
+                            child: Positioned.fill(
+                                child: LayoutBuilder(
+                                    builder: (context, constraints) =>
+                                        CustomPaint(
+                                          painter: BoundingBoxes(
+                                              widget.plantInfo.boundingBoxes,
+                                              constraints.maxWidth,
+                                              constraints.maxHeight,
+                                              maskColors,
+                                              widget.plantInfo.labels!),
+                                        )))),
+                        
+                      ]),
                       const SizedBox(height: 10.0),
                       Text(
                         "Name: ${widget.plantInfo.id}",
@@ -99,7 +112,7 @@ class _PlantInfoState extends State<PlantInfo> {
                         ),
                       const SizedBox(height: 10.0),
                       Row(children: [
-                        Text("Show Bounding Boxes"),
+                        const Text("Show Bounding Boxes"),
                         Switch(
                           value: areBoundingBoxesVisible,
                           onChanged: (value) {
@@ -110,7 +123,7 @@ class _PlantInfoState extends State<PlantInfo> {
                         )
                       ]),
                       Row(children: [
-                        Text("Show Masks"),
+                        const Text("Show Masks"),
                         Switch(
                           value: areMasksVisible,
                           onChanged: (value) {
@@ -199,12 +212,36 @@ class _PlantInfoState extends State<PlantInfo> {
   }
 }
 
+class DrawText extends CustomPainter {
+  final String text;
+  final Offset position;
+  final TextStyle style;
+
+  DrawText({required this.text, required this.position, required this.style});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final textSpan = TextSpan(text: text, style: style);
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(minWidth: 0, maxWidth: size.width);
+    textPainter.paint(canvas, position);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
 class BoundingBoxes extends CustomPainter {
   final List<dynamic>? boundingBoxes;
   final double widthScale;
   final double heightScale;
+  final List<Color> colors;
+  final List<String> labels;
 
-  BoundingBoxes(this.boundingBoxes, this.widthScale, this.heightScale);
+  BoundingBoxes(this.boundingBoxes, this.widthScale, this.heightScale, this.colors, this.labels);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -218,11 +255,37 @@ class BoundingBoxes extends CustomPainter {
       final y = boundingBoxes![i][1];
       final width = boundingBoxes![i][2] - boundingBoxes![i][0];
       final height = boundingBoxes![i][3] - boundingBoxes![i][1];
+      final color = colors[i];
+      paint.color = color;
+
       canvas.drawRect(
           Rect.fromLTWH(widthScale * x, heightScale * y, widthScale * width,
               heightScale * height),
           paint);
+
+      final style = TextStyle(
+        color: color,
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        shadows: const [
+          Shadow(
+            offset: Offset(2.0, 2.0),
+            blurRadius: 3.0,
+            color: Colors.black,
+          ),
+        ],
+      );
+      
+      final textSpan = TextSpan(text: labels[i], style: style);
+      final textPainter = TextPainter(
+        text: textSpan,
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout(minWidth: 0, maxWidth: size.width);
+      textPainter.paint(canvas, Offset(widthScale * x, heightScale * y));
     }
+
+
   }
 
   @override
