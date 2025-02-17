@@ -268,7 +268,7 @@ class AppDatabase {
           ORDER BY bb.id
         ''');
 
-    if (results.length == 1) {
+    if (results.length == 0) {
       return [];
     }
 
