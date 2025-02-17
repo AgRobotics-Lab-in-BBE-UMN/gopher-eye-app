@@ -187,7 +187,8 @@ class _CameraScreenState extends State<CameraScreen>
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     var previewRatio = width / height;
-    return Expanded(child: Stack(children: [
+    return Expanded(
+        child: Stack(children: [
       AspectRatio(
           aspectRatio: previewRatio,
           child: ClipRect(
@@ -201,19 +202,19 @@ class _CameraScreenState extends State<CameraScreen>
                         key: const Key('camera_preview'),
                       ))))),
       Align(
-        alignment: Alignment.bottomCenter,
-        child: Container(
-          padding: EdgeInsets.only(bottom: 60.0),
-          color: Colors.transparent,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildGalleyButton(),
-              _buildCaptureButton(context),
-              _buildQRScannerButton()
-            ],
-          ))),
+          alignment: Alignment.bottomCenter,
+          child: Container(
+              padding: EdgeInsets.only(bottom: 60.0),
+              color: Colors.transparent,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildGalleyButton(),
+                  _buildCaptureButton(context),
+                  _buildQRScannerButton()
+                ],
+              ))),
     ]));
   }
 
@@ -336,58 +337,60 @@ class _CameraScreenState extends State<CameraScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-            title: Consumer<PlotProvider>(builder: (context, plot, child) => Text('Camera: Site ${plot.plot}')),
-            backgroundColor: Colors.transparent,
-            titleTextStyle: const TextStyle(color: Colors.white, fontSize: 24),
-            leading: const BackButton(
-              color: Colors.white,
-            )),
-        extendBodyBehindAppBar: true,
-        backgroundColor: Colors.black,
-        body: _isCameraPermissionGranted
-            ? _isCameraInitialized
-                ? Column(
-                    children: [
-                      _buildCameraPreview(context)
-                      // _flashButtonsRibbon(),
-                    ],
-                  )
-                : const Center(
-                    child: Text(
-                      'LOADING',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Row(),
-                  const Text(
-                    'Permission denied',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                    ),
+      appBar: AppBar(
+          title: Consumer<PlotProvider>(
+              builder: (context, plot, child) =>
+                  Text('Camera: Site ${plot.plot}')),
+          backgroundColor: Colors.transparent,
+          titleTextStyle: const TextStyle(color: Colors.white, fontSize: 24),
+          leading: const BackButton(
+            color: Colors.white,
+          )),
+      extendBodyBehindAppBar: true,
+      backgroundColor: Colors.black,
+      body: _isCameraPermissionGranted
+          ? _isCameraInitialized
+              ? Column(
+                  children: [
+                    _buildCameraPreview(context)
+                    // _flashButtonsRibbon(),
+                  ],
+                )
+              : const Center(
+                  child: Text(
+                    'LOADING',
+                    style: TextStyle(color: Colors.white),
                   ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () {
-                      getPermissionStatus();
-                    },
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        'Give permission',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                        ),
+                )
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Row(),
+                const Text(
+                  'Permission denied',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () {
+                    getPermissionStatus();
+                  },
+                  child: const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text(
+                      'Give permission',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
     );
   }
 

@@ -6,16 +6,40 @@ import 'package:get/get.dart';
 import 'dart:io';
 
 import 'package:gopher_eye/services/api.dart';
-import 'package:gopher_eye/preview_list_screen.dart';
+import 'package:gopher_eye/services/photo_handler.dart';
 
-class PreviewPage extends StatelessWidget {
+class PreviewPage extends StatefulWidget {
   PreviewPage({super.key, required this.picture});
+  final XFile picture;
+
+  @override
+  PreviewPageState createState() => PreviewPageState();
+}
+
+class PreviewPageState extends State<PreviewPage> {
   final ApiServiceController controller = Get.put(ApiServiceController());
 
-  final XFile picture;
   bool imageUploadConfirmed = false;
+  final PhotoHandler _photoHandler = PhotoHandler();
+  String coordinates = "";
+
+  @override
+  void initState() {
+    super.initState();
+    loadCoords();
+  }
+
+  void loadCoords() async {
+    String coords = await _photoHandler.getCoords(widget.picture);
+    setState(() {
+      // updating coordinates
+      coordinates = coords;
+    });
+  }
+
   void uploadImageData(XFile picture) async {
-    imageUploadConfirmed = (await controller.sendImage(File(picture.path))).isNotEmpty;
+    imageUploadConfirmed =
+        (await controller.sendImage(File(picture.path))).isNotEmpty;
     if (imageUploadConfirmed) {
       controller.isSuccess.value = imageUploadConfirmed;
       debugPrint("Image upload successfully");
@@ -60,13 +84,14 @@ class PreviewPage extends StatelessWidget {
             return Center(
               child: Column(children: [
                 Image.file(
-                  File(picture.path),
+                  File(widget.picture.path),
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.7,
+                  height: MediaQuery.of(context).size.height * 0.6,
                   fit: BoxFit.cover,
                 ),
                 const SizedBox(height: 20),
-                Text(picture.name),
+                Text(widget.picture.name),
+                Text(coordinates),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -78,7 +103,7 @@ class PreviewPage extends StatelessWidget {
                         child: _buildCircularButton(Colors.red, Icons.clear)),
                     GestureDetector(
                         onTap: () {
-                          uploadImageData(picture);
+                          uploadImageData(widget.picture);
                         },
                         child: _buildCircularButton(Colors.green, Icons.done)),
                   ],
