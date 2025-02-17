@@ -109,12 +109,9 @@ void _showLoadingDialog(BuildContext context, bool isSuccess) {
                         // dismiss the dialog
                         _dismissLoadingDialog(context);
                         // navigate to the PreviewListScreen
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => PreviewListScreen()));
+                        Navigator.pop(context);
                       },
-                      child: const Text("Preview"),
+                      child: const Text("Return to Camera"),
                     ),
                   ],
                 )
