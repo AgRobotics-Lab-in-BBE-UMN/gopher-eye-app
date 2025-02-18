@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:exif/exif.dart';
 import 'package:rational/rational.dart';
@@ -23,7 +24,9 @@ class PhotoHandler {
   //   getCoords(photo);
   // }
 
-  Future<String> getCoords(XFile? photo) async {
+
+
+  Future<String> getCoordsFromPhoto(XFile? photo) async {
     if (photo != null) {
       final File imageFile = File(photo.path);
       final Map<String, IfdTag> exifData =
@@ -44,7 +47,7 @@ class PhotoHandler {
         if (exifData['GPS GPSLongitudeRef']!.printable.contains('W')) {
           longitude = -longitude;
         }
-        return "PhotoId: $photoId, Latitude: $latitude, Longitude: $longitude";
+        return "Latitude: $latitude, Longitude: $longitude";
       } else {
         return "Error: No GPS data in the photo.";
       }

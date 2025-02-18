@@ -2,6 +2,7 @@
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'dart:io';
 
@@ -9,8 +10,9 @@ import 'package:gopher_eye/services/api.dart';
 import 'package:gopher_eye/services/photo_handler.dart';
 
 class PreviewPage extends StatefulWidget {
-  PreviewPage({super.key, required this.picture});
+  PreviewPage({super.key, required this.picture, required this.coordSource});
   final XFile picture;
+  final String coordSource;
 
   @override
   PreviewPageState createState() => PreviewPageState();
@@ -18,6 +20,31 @@ class PreviewPage extends StatefulWidget {
 
 class PreviewPageState extends State<PreviewPage> {
   final ApiServiceController controller = Get.put(ApiServiceController());
+  
+  static const LocationSettings locationSettings = LocationSettings(
+    accuracy: LocationAccuracy.high,
+    distanceFilter: 1,
+    timeLimit: Duration(seconds: 5),
+  );
+
+  Future<String> getCoordsFromPhone() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error("Location services are disabled.");
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        return Future.error("Location permission is permanently denied.");
+      }
+    }
+
+    Position position = await Geolocator.getCurrentPosition(locationSettings: locationSettings);
+
+    return "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
+  }
 
   bool imageUploadConfirmed = false;
   final PhotoHandler _photoHandler = PhotoHandler();
@@ -30,7 +57,9 @@ class PreviewPageState extends State<PreviewPage> {
   }
 
   void loadCoords() async {
-    String coords = await _photoHandler.getCoords(widget.picture);
+    String coords = widget.coordSource == "photo"
+      ? await _photoHandler.getCoordsFromPhoto(widget.picture)
+      : await getCoordsFromPhone();
     setState(() {
       // updating coordinates
       coordinates = coords;

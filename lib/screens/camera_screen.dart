@@ -161,6 +161,7 @@ class _CameraScreenState extends State<CameraScreen>
             MaterialPageRoute(
                 builder: (context) => PreviewPage(
                       picture: pickedFile,
+                      coordSource: "photo"
                     )));
       }
     });
@@ -256,6 +257,7 @@ class _CameraScreenState extends State<CameraScreen>
             MaterialPageRoute(
                 builder: (context) => PreviewPage(
                       picture: rawImage!,
+                      coordSource: "phone",
                     )));
       },
       child: const Stack(
