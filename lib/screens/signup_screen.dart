@@ -62,27 +62,24 @@ class _SignUpScreen extends State<StatefulWidget> {
                     ),
                     Center(
                       child: Container(
-                        height: 60,
                         width: 100,
+                        height: 100,
                         decoration: BoxDecoration(
-                            color: Colors.indigo[900],
-                            borderRadius: BorderRadius.circular(10.0)),
-                        child: const Center(
-                          child: Text(
-                            "LOGO",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold),
+                          borderRadius: BorderRadius.circular(20),
+                          image: const DecorationImage(
+                            image: AssetImage('assets/icons/app_store_2.png'),
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 50.0),
-                    const Text(
-                      "Create Your Account",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                    const Center(
+                      child: Text(
+                        "Create Your Account",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w800),
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(40, 20, 40, 30),
@@ -96,8 +93,8 @@ class _SignUpScreen extends State<StatefulWidget> {
                                 TextFormField(
                                   validator: emailvalidator,
                                   controller: emailController,
-                                  style: TextStyle(
-                                      color: Colors.blue[900],
+                                  style: const TextStyle(
+                                      color: Color(0xFF009444),
                                       fontWeight: FontWeight.w800),
                                   decoration: InputDecoration(
                                       hintText: "E-Mail",
@@ -109,8 +106,8 @@ class _SignUpScreen extends State<StatefulWidget> {
                                   obscureText: true,
                                   validator: passwordvalidator,
                                   controller: passwordController,
-                                  style: TextStyle(
-                                      color: Colors.blue[900],
+                                  style: const TextStyle(
+                                      color: Color(0xFF009444),
                                       fontWeight: FontWeight.w800),
                                   decoration: InputDecoration(
                                       hintText: "Password",
@@ -122,8 +119,8 @@ class _SignUpScreen extends State<StatefulWidget> {
                                   obscureText: hidden,
                                   validator: passwordvalidator,
                                   controller: confirmPasswordController,
-                                  style: TextStyle(
-                                      color: Colors.blue[900],
+                                  style: const TextStyle(
+                                      color: Color(0xFF009444),
                                       fontWeight: FontWeight.w800),
                                   decoration: InputDecoration(
                                       hintText: "Confirm Password",
@@ -169,7 +166,7 @@ class _SignUpScreen extends State<StatefulWidget> {
                                 }
                               }
                             },
-                            color: Colors.indigo[900],
+                            color: const Color(0xFF009444),
                             child: const Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: 80, vertical: 16),
