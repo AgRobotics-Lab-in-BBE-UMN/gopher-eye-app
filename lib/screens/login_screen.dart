@@ -40,26 +40,24 @@ class _LoginScreen extends State<StatefulWidget> {
                   ),
                   Center(
                     child: Container(
-                      height: 60,
                       width: 100,
+                      height: 100,
                       decoration: BoxDecoration(
-                          color: Colors.indigo[900],
-                          borderRadius: BorderRadius.circular(10.0)),
-                      child: const Center(
-                        child: Text(
-                          "LOGO",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold),
+                        borderRadius: BorderRadius.circular(20),
+                        image: const DecorationImage(
+                          image: AssetImage('assets/icons/app_store_2.png'),
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 40.0),
-                  const Text(
-                    "Login to Your Account",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                  const Center(
+                    child: Text(
+                      "Login to Your Account",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(40, 20, 40, 30),
@@ -75,8 +73,8 @@ class _LoginScreen extends State<StatefulWidget> {
                               TextFormField(
                                 validator: emailvalidator,
                                 controller: emailController,
-                                style: TextStyle(
-                                    color: Colors.blue[900],
+                                style: const TextStyle(
+                                    color: Color(0xFF000000),
                                     fontWeight: FontWeight.w800),
                                 decoration: InputDecoration(
                                     hintText: "E-Mail",
@@ -143,8 +141,8 @@ class _LoginScreen extends State<StatefulWidget> {
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
-                                                const HomeScreen(),
-                                                  // const BottomNavigationBarModel(),
+                                                  const HomeScreen(),
+                                              // const BottomNavigationBarModel(),
                                             ),
                                           )
                                         }
@@ -156,7 +154,7 @@ class _LoginScreen extends State<StatefulWidget> {
                                         }
                                     });
                           },
-                          color: Colors.indigo[900],
+                          color: const Color(0xFF009444),
                           child: const Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 80, vertical: 16),
