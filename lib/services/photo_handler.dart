@@ -13,19 +13,6 @@ class PhotoHandler {
   final ImagePicker _picker = ImagePicker();
   late Database _database;
 
-  // void initDatabase() async {
-  //   Directory documentsDirectory = await getApplicationDocumentsDirectory();
-  //   _database =
-  //       await openDatabase(join(documentsDirectory.path, "photo_coords.db"));
-  // }
-
-  // Future<void> pickImage() async {
-  //   final XFile? photo = await _picker.pickImage(source: ImageSource.camera);
-  //   getCoords(photo);
-  // }
-
-
-
   Future<String> getCoordsFromPhoto(XFile? photo) async {
     if (photo != null) {
       final File imageFile = File(photo.path);
@@ -47,12 +34,12 @@ class PhotoHandler {
         if (exifData['GPS GPSLongitudeRef']!.printable.contains('W')) {
           longitude = -longitude;
         }
-        return "Latitude: $latitude, Longitude: $longitude";
+        return "Lat: $latitude, Lng: $longitude";
       } else {
         return "Error: No GPS data in the photo.";
       }
     } else {
-      return "There is no selected photo";
+      return "Error: There is no selected photo";
     }
   }
 
@@ -63,10 +50,4 @@ class PhotoHandler {
     final seconds = ratios[2].toDouble();
     return degrees + (minutes / 60) + (seconds / 3600);
   }
-
-  // Future<void> _saveToDatabase(
-  //     String photoId, double latitude, double longitude) async {
-  //   await _database.insert('photo_coords',
-  //       {'photo_id': photoId, 'latitude': latitude, 'longitude': longitude});
-  // }
 }

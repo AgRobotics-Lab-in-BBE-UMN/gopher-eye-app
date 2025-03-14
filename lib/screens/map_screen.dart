@@ -1,5 +1,10 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:gopher_eye/services/photo_handler.dart';
+import 'package:gopher_eye/services/location_controller.dart';
+import 'package:get/get.dart';
+import 'dart:async';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
@@ -10,46 +15,61 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   Set<Marker> _markers = {};
+  final PhotoHandler _photoHandler = PhotoHandler();
+  final LocationController locationController = Get.find<LocationController>();
+  final Completer<GoogleMapController> _controller = Completer();
 
-  final List<LatLng> markerCoordinats = [
-    LatLng(44.9747, -93.2354), // random places
-    LatLng(44.9828, -93.2390),
-    LatLng(44.9670, -93.2370),
-  ];
-  // now we don't have a database, therefore, we define some of the markers coordinates over here into the set _markers which will be the storage for them
-
-  //now we need to create a function to add pin's locations onto the map
   @override
   void initState() {
-    // initState - special Flutter method for inserting new object
-    super.initState(); // call the Flutter function <- show that we overrride it
-    _addMarkers(); // add all pins automatically after loading the map on display
-  }
-  // let's creat this function _addMarkers();
+    super.initState();
 
-  void _addMarkers() {
-    // the loop - for or while - similar to c++
-    for (var i = 0; i < markerCoordinats.length; i++) {
-      // Immutability - неизменность final (cannot be changed after assigning it in a runtime)vs const (exact value that cannot be changed)
-      final marker = Marker(
-        markerId: MarkerId('marker_$i'),
-        position: markerCoordinats[i],
-        infoWindow: InfoWindow(
-          title: 'Marker $i',
-          snippet: 'This is marker number $i',
+    _markers.add(
+      Marker(
+        markerId: const MarkerId("start_location"),
+        position: const LatLng(44.9747, -93.2354),
+        infoWindow: const InfoWindow(
+          title: "Start Location",
+          snippet: "Lat: 44.9747, Lng: -93.2354",
         ),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      ),
+    );
+
+    // ever(locationController.latestCoords, (LatLng? newCoords) {
+    //   if (newCoords != null && locationController.latestPhoto.value != null) {
+    //     print("New coordinates received: $newCoords");
+    //     _addMarker(newCoords.latitude, newCoords.longitude,
+    //         locationController.latestPhoto.value!);
+    //   }
+    // });
+
+    _addMarker(
+        locationController.latestCoords.value!.latitude,
+        locationController.latestCoords.value!.longitude,
+        locationController.latestPhoto.value!);
+
+    setState(() {});
+  }
+
+  void _addMarker(double latitude, double longitude, XFile photo) {
+    setState(() {
+      _markers.add(
+        Marker(
+          markerId: MarkerId(photo.path),
+          position: LatLng(latitude, longitude),
+          infoWindow: InfoWindow(
+            snippet: "Lat: $latitude, Lng: $longitude",
+          ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+        ),
       );
-      setState(() {
-        _markers.add(marker);
-      });
-    }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     const CameraPosition start_Position = CameraPosition(
-      target: LatLng(44.9747, -93.2354), // any start coordinate
+      target: LatLng(44.9747, -93.2354),
       zoom: 12.0,
     );
 
@@ -59,14 +79,17 @@ class _MapScreenState extends State<MapScreen> {
       ),
       body: GoogleMap(
         initialCameraPosition: start_Position,
-        mapType: MapType.normal, // Specify the map type, e.g. MapType.hybrid
-        myLocationEnabled: true, // Enables user's current location on the map
-        myLocationButtonEnabled: true, // Adds the location button on the map
-        onMapCreated: (GoogleMapController controller) {
-          // Optional: Configure controller for custom map features
-        },
-        markers: _markers, // adding the set of markers
+        mapType: MapType.satellite,
+        myLocationEnabled: true,
+        myLocationButtonEnabled: true,
+        onMapCreated: (GoogleMapController controller) {},
+        markers: _markers,
       ),
     );
+  }
+
+  Future<void> _moveCamera(LatLng position) async {
+    final GoogleMapController controller = await _controller.future;
+    controller.animateCamera(CameraUpdate.newLatLng(position));
   }
 }

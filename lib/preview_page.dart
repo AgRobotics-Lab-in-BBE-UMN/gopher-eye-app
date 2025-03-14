@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'dart:io';
-
 import 'package:gopher_eye/services/api.dart';
 import 'package:gopher_eye/services/photo_handler.dart';
+import 'package:gopher_eye/services/location_controller.dart';
 
 class PreviewPage extends StatefulWidget {
-  PreviewPage({super.key, required this.picture, required this.coordSource});
+  const PreviewPage(
+      {super.key, required this.picture, required this.coordSource});
   final XFile picture;
   final String coordSource;
 
@@ -20,7 +21,8 @@ class PreviewPage extends StatefulWidget {
 
 class PreviewPageState extends State<PreviewPage> {
   final ApiServiceController controller = Get.put(ApiServiceController());
-  
+  final LocationController locationController = Get.put(LocationController());
+
   static const LocationSettings locationSettings = LocationSettings(
     accuracy: LocationAccuracy.high,
     distanceFilter: 1,
@@ -41,7 +43,8 @@ class PreviewPageState extends State<PreviewPage> {
       }
     }
 
-    Position position = await Geolocator.getCurrentPosition(locationSettings: locationSettings);
+    Position position =
+        await Geolocator.getCurrentPosition(locationSettings: locationSettings);
 
     return "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
   }
@@ -58,8 +61,8 @@ class PreviewPageState extends State<PreviewPage> {
 
   void loadCoords() async {
     String coords = widget.coordSource == "photo"
-      ? await _photoHandler.getCoordsFromPhoto(widget.picture)
-      : await getCoordsFromPhone();
+        ? await _photoHandler.getCoordsFromPhoto(widget.picture)
+        : await getCoordsFromPhone();
     setState(() {
       // updating coordinates
       coordinates = coords;
@@ -74,6 +77,13 @@ class PreviewPageState extends State<PreviewPage> {
       debugPrint("Image upload successfully");
     } else {
       debugPrint("Image upload Failed");
+    }
+    if (!coordinates.startsWith("Error")) {
+      List<String> latLng = coordinates.split(', ');
+      double latitude = double.parse(latLng[0].split(': ')[1]);
+      double longitude = double.parse(latLng[1].split(': ')[1]);
+
+      locationController.updateLatestLocation(latitude, longitude, picture);
     }
   }
 
