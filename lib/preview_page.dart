@@ -4,10 +4,12 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:gopher_eye/providers/model_provider.dart';
 import 'dart:io';
 import 'package:gopher_eye/services/api.dart';
 import 'package:gopher_eye/services/photo_handler.dart';
 import 'package:gopher_eye/services/location_controller.dart';
+import 'package:provider/provider.dart';
 
 class PreviewPage extends StatefulWidget {
   const PreviewPage(
@@ -69,9 +71,11 @@ class PreviewPageState extends State<PreviewPage> {
     });
   }
 
-  void uploadImageData(XFile picture) async {
-    imageUploadConfirmed =
-        (await controller.sendImage(File(picture.path))).isNotEmpty;
+  void uploadImageData(XFile picture, task) async {
+    imageUploadConfirmed = (task == 'grape'
+            ? await controller.sendImage(File(picture.path))
+            : await controller.sendSpikeImage(File(picture.path)))
+        .isNotEmpty;
     if (imageUploadConfirmed) {
       controller.isSuccess.value = imageUploadConfirmed;
       debugPrint("Image upload successfully");
@@ -89,6 +93,9 @@ class PreviewPageState extends State<PreviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final modelProvider =
+        Provider.of<ModelProvider>(context, listen: false);
+
     return Scaffold(
         appBar: AppBar(title: const Text('Upload Image')),
         body: Center(
@@ -142,7 +149,7 @@ class PreviewPageState extends State<PreviewPage> {
                         child: _buildCircularButton(Colors.red, Icons.clear)),
                     GestureDetector(
                         onTap: () {
-                          uploadImageData(widget.picture);
+                          uploadImageData(widget.picture, modelProvider.currentModel);
                         },
                         child: _buildCircularButton(Colors.green, Icons.done)),
                   ],
@@ -155,6 +162,7 @@ class PreviewPageState extends State<PreviewPage> {
 }
 
 void _showLoadingDialog(BuildContext context, bool isSuccess) {
+  final controller = Get.find<ApiServiceController>();
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -170,6 +178,7 @@ void _showLoadingDialog(BuildContext context, bool isSuccess) {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
+                        controller.resetState();
                         // dismiss the dialog
                         _dismissLoadingDialog(context);
                         // navigate to the PreviewListScreen

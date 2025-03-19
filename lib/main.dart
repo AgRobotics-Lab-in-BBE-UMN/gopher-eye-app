@@ -12,6 +12,7 @@ import 'package:gopher_eye/services/location_controller.dart';
 // import 'package:gopher_eye/app_database.dart';
 // import 'package:gopher_eye/synchronizer.dart';
 import 'package:provider/provider.dart';
+import 'package:gopher_eye/providers/model_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +35,10 @@ void main() async {
 
   Widget screen = loggedIn ? const HomeScreen() : const LoginScreen();
   runApp(MultiProvider(
-    providers: [ChangeNotifierProvider(create: (context) => PlotProvider())],
+    providers: [
+      ChangeNotifierProvider(create: (context) => PlotProvider()),
+      ChangeNotifierProvider(create: (context) => ModelProvider()),
+    ],
     child: MyApp(screen: screen),
   ));
 }

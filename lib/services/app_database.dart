@@ -215,7 +215,6 @@ class AppDatabase {
 
     List<Map<String, Object?>> results =
         await database.query('images', columns: ["id"]);
-
     List<ImageData> images = [];
     for (Map<String, Object?> result in results) {
       ImageData? image =
@@ -270,11 +269,11 @@ class AppDatabase {
           ORDER BY m.id, mp.path_order
         ''');
 
-    if (results.length == 1) {
+    if (results.length == 1 || (results.length == 1 && results.first['mask_id'] == null)) {
       return [];
     }
 
-    List<int> maskIds =
+    List<int> maskIds = 
         results.map((e) => e['mask_id'] as int).toSet().toList();
 
     List<List<double>> masks = [];
@@ -305,12 +304,11 @@ class AppDatabase {
           ORDER BY bb.id
         ''');
 
-    if (results.length == 0) {
+    if (results.isEmpty || (results.length == 1 && results.first['bounding_box_id'] == null)) {
       return [];
     }
 
-    List<int> boundingBoxIds =
-        results.map((e) => e['bounding_box_id'] as int).toSet().toList();
+    List<int> boundingBoxIds = results.map((e) => e['bounding_box_id'] as int).toSet().toList();
 
     List<List<double>> boundingBoxes = [];
     for (int boundingBoxId in boundingBoxIds) {
@@ -346,6 +344,7 @@ class AppDatabase {
 
     List<String> labels = [];
     for (Map<String, Object?> result in results) {
+      if (result['label'] == null) continue;
       labels.add(result['label'] as String);
     }
 

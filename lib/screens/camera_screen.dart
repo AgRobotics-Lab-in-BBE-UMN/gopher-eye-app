@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gallery_saver/gallery_saver.dart';
 import 'package:gopher_eye/preview_page.dart';
+import 'package:gopher_eye/providers/model_provider.dart';
 import 'package:gopher_eye/providers/plot_provider.dart';
 import 'package:gopher_eye/widgets/mobile_scanner_with_overlay.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -32,7 +33,6 @@ class _CameraScreenState extends State<CameraScreen>
   bool _isCameraInitialized = false;
   bool _isCameraPermissionGranted = false;
   bool _isRearCameraSelected = true;
-  FlashMode? _currentFlashMode;
 
   List<File> allFileList = [];
 
@@ -83,6 +83,76 @@ class _CameraScreenState extends State<CameraScreen>
     }
   }
 
+  void _showModelSelector() {
+    showModalBottomSheet(
+      isScrollControlled: true, // This allows the modal to take up more space
+      context: context,
+      backgroundColor: Colors.transparent, // Make the background transparent
+      builder: (context) {
+        final modelProvider =
+            Provider.of<ModelProvider>(context, listen: false);
+        return Container(
+          height:
+              MediaQuery.of(context).size.height * 0.6, // 60% of screen height
+          decoration: const BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Add a draggable indicator
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 12),
+                height: 4,
+                width: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.5),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              ListTile(
+                title: const Text(
+                  'Grape Foliar Downy & Powdery Mildew',
+                  style: TextStyle(color: Colors.white),
+                ),
+                trailing: modelProvider.currentModel == 'grape'
+                    ? const Icon(Icons.check, color: Colors.green)
+                    : null,
+                tileColor: modelProvider.currentModel == 'grape'
+                    ? Colors.grey.withOpacity(0.3)
+                    : null,
+                onTap: () {
+                  modelProvider.setModel('grape');
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text(
+                  'Wheat Fusarium Head Blight',
+                  style: TextStyle(color: Colors.white),
+                ),
+                trailing: modelProvider.currentModel == 'wheat'
+                    ? const Icon(Icons.check, color: Colors.green)
+                    : null,
+                tileColor: modelProvider.currentModel == 'wheat'
+                    ? Colors.grey.withOpacity(0.3)
+                    : null,
+                onTap: () {
+                  modelProvider.setModel('wheat');
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void onNewCameraSelected(CameraDescription cameraDescription) async {
     final previousCameraController = controller;
 
@@ -110,7 +180,7 @@ class _CameraScreenState extends State<CameraScreen>
       await cameraController
           .lockCaptureOrientation(DeviceOrientation.portraitUp);
 
-      _currentFlashMode = controller!.value.flashMode;
+      // _currentFlashMode = controller!.value.flashMode;
     } on CameraException catch (e) {
       log(e.toString());
     }
@@ -211,7 +281,7 @@ class _CameraScreenState extends State<CameraScreen>
                 children: [
                   _buildGalleyButton(),
                   _buildCaptureButton(context),
-                  _buildQRScannerButton()
+                  _buildQRScannerButton(),
                 ],
               ))),
     ]));
@@ -270,6 +340,29 @@ class _CameraScreenState extends State<CameraScreen>
             Icons.circle,
             color: Colors.white,
             size: 65,
+          ),
+        ],
+      ),
+    );
+  }
+
+  InkWell _buildModelSelectorButton() {
+    return InkWell(
+      onTap: () {
+        _showModelSelector();
+      },
+      child: const Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(
+            Icons.circle,
+            color: Colors.black38,
+            size: 60,
+          ),
+          Icon(
+            Icons.yard,
+            color: Colors.white,
+            size: 30,
           ),
         ],
       ),
@@ -338,14 +431,21 @@ class _CameraScreenState extends State<CameraScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Consumer<PlotProvider>(
-              builder: (context, plot, child) =>
-                  Text('Camera: Site ${plot.plot}')),
-          backgroundColor: Colors.transparent,
-          titleTextStyle: const TextStyle(color: Colors.white, fontSize: 24),
-          leading: const BackButton(
-            color: Colors.white,
-          )),
+        title: Consumer<PlotProvider>(
+            builder: (context, plot, child) =>
+                Text('Camera: Site ${plot.plot}')),
+        backgroundColor: Colors.transparent,
+        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 24),
+        leading: const BackButton(
+          color: Colors.white,
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: _buildModelSelectorButton(),
+          ),
+        ],
+      ),
       extendBodyBehindAppBar: true,
       backgroundColor: Colors.black,
       body: _isCameraPermissionGranted
@@ -391,95 +491,6 @@ class _CameraScreenState extends State<CameraScreen>
                 ),
               ],
             ),
-    );
-  }
-
-  Padding _flashButtonsRibbon() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 0.0),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(top: 50.0),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-              // 0.0,  8.0, 0.0, 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    onTap: () async {
-                      setState(() {
-                        _currentFlashMode = FlashMode.off;
-                      });
-                      await controller!.setFlashMode(
-                        FlashMode.off,
-                      );
-                    },
-                    child: Icon(
-                      Icons.flash_off,
-                      color: _currentFlashMode == FlashMode.off
-                          ? Colors.amber
-                          : Colors.white,
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      setState(() {
-                        _currentFlashMode = FlashMode.auto;
-                      });
-                      await controller!.setFlashMode(
-                        FlashMode.auto,
-                      );
-                    },
-                    child: Icon(
-                      Icons.flash_auto,
-                      color: _currentFlashMode == FlashMode.auto
-                          ? Colors.amber
-                          : Colors.white,
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      setState(() {
-                        _currentFlashMode = FlashMode.always;
-                      });
-                      await controller!.setFlashMode(
-                        FlashMode.always,
-                      );
-                    },
-                    child: Icon(
-                      Icons.flash_on,
-                      color: _currentFlashMode == FlashMode.always
-                          ? Colors.amber
-                          : Colors.white,
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () async {
-                      setState(() {
-                        _currentFlashMode = FlashMode.torch;
-                      });
-                      await controller!.setFlashMode(
-                        FlashMode.torch,
-                      );
-                    },
-                    child: Icon(
-                      Icons.highlight,
-                      color: _currentFlashMode == FlashMode.torch
-                          ? Colors.amber
-                          : Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
     );
   }
 }
