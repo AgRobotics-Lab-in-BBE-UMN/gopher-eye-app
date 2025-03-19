@@ -85,7 +85,7 @@ class CameraCaptureCard extends StatelessWidget{
                                   ),
                                 );
                               },
-                              color: const Color.fromARGB(255, 13, 108, 186),
+                              color: const Color(0xFF009444),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20.0),
                               ),
