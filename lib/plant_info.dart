@@ -36,7 +36,7 @@ class _PlantInfoState extends State<PlantInfo> {
           maskColors.add(const Color.fromARGB(255, 203, 89, 176));
           break;
         default:
-          maskColors.add(const Color.fromARGB(255, 2, 1, 1));
+            maskColors.add(Color((Random().nextDouble() * 0xFFFFFF).toInt()));
     }
     }
   }

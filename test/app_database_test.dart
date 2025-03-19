@@ -53,7 +53,10 @@ void main() {
             ],
             [0.25, 0.25, 0.75, 0.75]
           ],
-          labels: ['Healthy_Leaf', 'Downy_Leaf']);
+          labels: [
+            'Healthy_Leaf',
+            'Downy_Leaf'
+          ]);
 
       AppDatabase.insertImage(image, databaseName: 'test.db');
 
@@ -86,7 +89,10 @@ void main() {
             [0, 0, 1, 1],
             [0.25, 0.25, 0.75, 0.75]
           ],
-          labels: ['Healthy_Leaf', 'Downy_Leaf']);
+          labels: [
+            'Healthy_Leaf',
+            'Downy_Leaf'
+          ]);
 
       await AppDatabase.insertImage(image, databaseName: 'test.db');
 
@@ -163,7 +169,10 @@ void main() {
             [0, 0, 1, 1],
             [0.25, 0.25, 0.75, 0.75]
           ],
-          labels: ['Healthy_Leaf', 'Downy_Leaf']);
+          labels: [
+            'Healthy_Leaf',
+            'Downy_Leaf'
+          ]);
 
       await AppDatabase.insertImage(image, databaseName: 'test.db');
 
@@ -196,6 +205,35 @@ void main() {
       expect(results[1]['y1'], 0.25);
       expect(results[1]['x2'], 0.75);
       expect(results[1]['y2'], 0.75);
+    } finally {
+      await deleteDatabase(join(await getDatabasesPath(), 'test.db'));
+    }
+  });
+
+  test('Test photo coordinates insertion', () async {
+    try {
+      await AppDatabase.initDatabase(databaseName: 'test.db');
+
+      String testImageId = 'test_image_id';
+      double testLat = 47.972;
+      double testLng = -90.235;
+
+      await AppDatabase.insertPhotoCoords(testImageId, testLat, testLng,
+          databaseName: 'test.db');
+
+      String databasePath = join(await getDatabasesPath(), 'test.db');
+      Database db = await openDatabase(databasePath);
+
+      List<Map<String, dynamic>> results = await db.query(
+        'photo_coords',
+        where: 'photo_id = ?',
+        whereArgs: [testImageId],
+      );
+
+      expect(results.length, 1);
+      expect(results[0]['photo_id'], testImageId);
+      expect(results[0]['latitude'], testLat);
+      expect(results[0]['longitude'], testLng);
     } finally {
       await deleteDatabase(join(await getDatabasesPath(), 'test.db'));
     }
@@ -242,8 +280,11 @@ void main() {
           boundingBoxes: [
             [0, 0, 1, 1],
             [0.25, 0.25, 0.75, 0.75]
-          ], 
-          labels: ['Healthy_Leaf', 'Downy_Leaf']);
+          ],
+          labels: [
+            'Healthy_Leaf',
+            'Downy_Leaf'
+          ]);
 
       await AppDatabase.insertImage(image1, databaseName: 'test.db');
 
@@ -281,7 +322,10 @@ void main() {
             [0, 0, 1, 1],
             [0.25, 0.25, 0.75, 0.75]
           ],
-          labels: ['Healthy_Leaf', 'Downy_Leaf']);
+          labels: [
+            'Healthy_Leaf',
+            'Downy_Leaf'
+          ]);
 
       await AppDatabase.insertImage(image1, databaseName: 'test.db');
 
@@ -309,7 +353,10 @@ void main() {
             [0, 0, 1, 1],
             [0.25, 0.25, 0.75, 0.75]
           ],
-          labels: ['Healthy_Leaf', 'Downy_Leaf']);
+          labels: [
+            'Healthy_Leaf',
+            'Downy_Leaf'
+          ]);
 
       await AppDatabase.insertImage(image, databaseName: 'test.db');
 
@@ -359,7 +406,10 @@ void main() {
             [0.0, 0.0, 1.0, 1.0],
             [0.25, 0.25, 0.75, 0.75]
           ],
-          labels: ['Healthy_Leaf', 'Downy_Leaf']);
+          labels: [
+            'Healthy_Leaf',
+            'Downy_Leaf'
+          ]);
 
       await AppDatabase.insertImage(image, databaseName: 'test.db');
       await AppDatabase.insertBoundingBoxes(

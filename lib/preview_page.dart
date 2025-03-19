@@ -2,30 +2,100 @@
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:gopher_eye/providers/model_provider.dart';
 import 'dart:io';
-
 import 'package:gopher_eye/services/api.dart';
-import 'package:gopher_eye/preview_list_screen.dart';
+import 'package:gopher_eye/services/photo_handler.dart';
+import 'package:gopher_eye/services/location_controller.dart';
+import 'package:provider/provider.dart';
 
-class PreviewPage extends StatelessWidget {
-  PreviewPage({super.key, required this.picture});
-  final ApiServiceController controller = Get.put(ApiServiceController());
-
+class PreviewPage extends StatefulWidget {
+  const PreviewPage(
+      {super.key, required this.picture, required this.coordSource});
   final XFile picture;
+  final String coordSource;
+
+  @override
+  PreviewPageState createState() => PreviewPageState();
+}
+
+class PreviewPageState extends State<PreviewPage> {
+  final ApiServiceController controller = Get.put(ApiServiceController());
+  final LocationController locationController = Get.put(LocationController());
+
+  static const LocationSettings locationSettings = LocationSettings(
+    accuracy: LocationAccuracy.high,
+    distanceFilter: 1,
+    timeLimit: Duration(seconds: 5),
+  );
+
+  Future<String> getCoordsFromPhone() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error("Location services are disabled.");
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        return Future.error("Location permission is permanently denied.");
+      }
+    }
+
+    Position position =
+        await Geolocator.getCurrentPosition(locationSettings: locationSettings);
+
+    return "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
+  }
+
   bool imageUploadConfirmed = false;
-  void uploadImageData(XFile picture) async {
-    imageUploadConfirmed = (await controller.sendImage(File(picture.path))).isNotEmpty;
+  final PhotoHandler _photoHandler = PhotoHandler();
+  String coordinates = "";
+
+  @override
+  void initState() {
+    super.initState();
+    loadCoords();
+  }
+
+  void loadCoords() async {
+    String coords = widget.coordSource == "photo"
+        ? await _photoHandler.getCoordsFromPhoto(widget.picture)
+        : await getCoordsFromPhone();
+    setState(() {
+      // updating coordinates
+      coordinates = coords;
+    });
+  }
+
+  void uploadImageData(XFile picture, task) async {
+    imageUploadConfirmed = (task == 'grape'
+            ? await controller.sendImage(File(picture.path))
+            : await controller.sendSpikeImage(File(picture.path)))
+        .isNotEmpty;
     if (imageUploadConfirmed) {
       controller.isSuccess.value = imageUploadConfirmed;
       debugPrint("Image upload successfully");
     } else {
       debugPrint("Image upload Failed");
     }
+    if (!coordinates.startsWith("Error")) {
+      List<String> latLng = coordinates.split(', ');
+      double latitude = double.parse(latLng[0].split(': ')[1]);
+      double longitude = double.parse(latLng[1].split(': ')[1]);
+
+      locationController.updateLatestLocation(latitude, longitude, picture);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final modelProvider =
+        Provider.of<ModelProvider>(context, listen: false);
+
     return Scaffold(
         appBar: AppBar(title: const Text('Upload Image')),
         body: Center(
@@ -60,13 +130,14 @@ class PreviewPage extends StatelessWidget {
             return Center(
               child: Column(children: [
                 Image.file(
-                  File(picture.path),
+                  File(widget.picture.path),
                   width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.7,
+                  height: MediaQuery.of(context).size.height * 0.6,
                   fit: BoxFit.cover,
                 ),
                 const SizedBox(height: 20),
-                Text(picture.name),
+                Text(widget.picture.name),
+                Text(coordinates),
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -78,7 +149,7 @@ class PreviewPage extends StatelessWidget {
                         child: _buildCircularButton(Colors.red, Icons.clear)),
                     GestureDetector(
                         onTap: () {
-                          uploadImageData(picture);
+                          uploadImageData(widget.picture, modelProvider.currentModel);
                         },
                         child: _buildCircularButton(Colors.green, Icons.done)),
                   ],
@@ -91,6 +162,7 @@ class PreviewPage extends StatelessWidget {
 }
 
 void _showLoadingDialog(BuildContext context, bool isSuccess) {
+  final controller = Get.find<ApiServiceController>();
   showDialog(
     context: context,
     barrierDismissible: true,
@@ -106,6 +178,7 @@ void _showLoadingDialog(BuildContext context, bool isSuccess) {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
+                        controller.resetState();
                         // dismiss the dialog
                         _dismissLoadingDialog(context);
                         // navigate to the PreviewListScreen

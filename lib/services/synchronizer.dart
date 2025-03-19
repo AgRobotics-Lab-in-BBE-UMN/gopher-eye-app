@@ -28,11 +28,21 @@ class Synchronizer {
             await File(imagePath).writeAsBytes(imageBytes);
             imageData.image = imagePath;
             await AppDatabase.insertImage(imageData);
+          } else if (imageData.image != null &&
+              !File(imageData.image!).existsSync()) {
+            imageData = await api.getPlantData(plantId);
+            Uint8List imageBytes = await api.getPlantImage(plantId, 'image');
+            final directory = await getApplicationDocumentsDirectory();
+            final imagePath = '${directory.path}/$plantId.jpg';
+            await File(imagePath).writeAsBytes(imageBytes);
+            imageData.image = imagePath;
+            await AppDatabase.insertImage(imageData);
           } else if (imageData.status != 'complete') {
             ImageData updatedImageData = await api.getPlantData(plantId);
-            await AppDatabase.insertBoundingBoxes(
-                plantId, updatedImageData.boundingBoxes!, updatedImageData.labels!);
-            await AppDatabase.insertMasks(plantId, updatedImageData.masks!, updatedImageData.labels!);
+            await AppDatabase.insertBoundingBoxes(plantId,
+                updatedImageData.boundingBoxes!, updatedImageData.labels!);
+            await AppDatabase.insertMasks(
+                plantId, updatedImageData.masks!, updatedImageData.labels!);
           }
         } catch (e) {
           if (kDebugMode) {

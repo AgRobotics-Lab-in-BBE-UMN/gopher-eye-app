@@ -44,6 +44,36 @@ class ApiServiceController extends GetxController {
     return "";
   }
 
+  Future<String> sendSpikeImage(File image) async {
+    String serverURL = await _getServerURL();
+    isLoading.value = true;
+    try {
+      var url = Uri.http(serverURL, 'dl/segmentation_spike');
+      var request = http.MultipartRequest('PUT', url);
+      request.files.add(await http.MultipartFile.fromPath('image', image.path));
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        debugPrint("Image uploaded successfully");
+        // Read the response body as a string
+        var responseBody = await response.stream.bytesToString();
+        // Parse the JSON string into a Map
+        var parsedJson = jsonDecode(responseBody);
+        // Get the 'plant_id' value from the Map
+        plantId = parsedJson['plant_id'];
+        debugPrint("Plant ID: $plantId");
+        return plantId;
+      } else {
+        debugPrint("Image upload failed");
+        return "";
+      }
+    } catch (e) {
+      debugPrint("Error: $e");
+    } finally {
+      isLoading.value = false;
+    }
+    return "";
+  }
+
   Future<ImageData> getPlantData(plantId) async {
     try {
       String serverURL = await _getServerURL();
@@ -156,5 +186,11 @@ class ApiServiceController extends GetxController {
   Future<String> _getServerURL() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('serverUrl') ?? 'gopher-eye.com';
+  }
+
+  void resetState() {
+    isLoading.value = false;
+    isSuccess.value = false;
+    isDialogShowing = false;
   }
 }

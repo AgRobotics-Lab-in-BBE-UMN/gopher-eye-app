@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gopher_eye/providers/plot_provider.dart';
 import 'package:gopher_eye/screens/login_screen.dart';
 import 'package:gopher_eye/screens/home_screen.dart';
@@ -7,15 +8,18 @@ import 'package:gopher_eye/services/synchronizer.dart';
 import 'package:gopher_eye/utils/firebase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:gopher_eye/services/app_database.dart';
+import 'package:gopher_eye/services/location_controller.dart';
 // import 'package:gopher_eye/app_database.dart';
 // import 'package:gopher_eye/synchronizer.dart';
 import 'package:provider/provider.dart';
+import 'package:gopher_eye/providers/model_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   _initPreferences();
   AppDatabase.initDatabase();
+  Get.put(LocationController());
   SharedPreferences.getInstance().then((prefs) async {
     while (prefs.getString('serverUrl') == null) {
       await Future.delayed(const Duration(seconds: 1));
@@ -31,19 +35,22 @@ void main() async {
 
   Widget screen = loggedIn ? const HomeScreen() : const LoginScreen();
   runApp(MultiProvider(
-    providers: [ChangeNotifierProvider(create: (context) => PlotProvider())],
+    providers: [
+      ChangeNotifierProvider(create: (context) => PlotProvider()),
+      ChangeNotifierProvider(create: (context) => ModelProvider()),
+    ],
     child: MyApp(screen: screen),
   ));
 }
 
 class MyApp extends StatelessWidget {
   final Widget screen;
-  
+
   const MyApp({super.key, required this.screen});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
         debugShowCheckedModeBanner: false,
         title: "Gopher Eye Detection",
         home: screen);

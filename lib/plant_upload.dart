@@ -3,10 +3,12 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:gopher_eye/providers/model_provider.dart';
 import 'package:gopher_eye/services/api.dart';
 import 'package:gopher_eye/screens/home_screen.dart';
 // import 'package:gopher_eye/api.dart';
 import 'package:gopher_eye/plant_capture.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PlantUploadScreen extends StatelessWidget {
@@ -55,10 +57,15 @@ class PlantUploadScreen extends StatelessWidget {
   }
 
   Future<bool> _uploadImage(BuildContext context, String imagePath) async {
+    final modelProvider =
+        Provider.of<ModelProvider>(context, listen: false);
+
     try {
       File imageFile = File(imagePath);
       ApiServiceController apiServiceController = ApiServiceController();
-      String plantId = await apiServiceController.sendImage(imageFile);
+      String plantId = modelProvider.currentModel == 'grape' ? 
+        await apiServiceController.sendImage(imageFile):
+        await apiServiceController.sendSpikeImage(imageFile);
 
       if (plantId.isNotEmpty) {
         // Print plant_id
