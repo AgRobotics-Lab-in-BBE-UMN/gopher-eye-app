@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gopher_eye/image_data.dart';
-import 'package:gopher_eye/plant_info.dart';
+import 'package:gopher_eye/widgets/plant_info.dart';
 
 class PreviewTile extends StatefulWidget {
   const PreviewTile(

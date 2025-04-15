@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:gallery_saver/gallery_saver.dart';
-import 'package:gopher_eye/plant_upload.dart';
+import 'package:gopher_eye/screens/plant_upload_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 

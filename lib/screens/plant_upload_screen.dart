@@ -7,7 +7,7 @@ import 'package:gopher_eye/providers/model_provider.dart';
 import 'package:gopher_eye/services/api.dart';
 import 'package:gopher_eye/screens/home_screen.dart';
 // import 'package:gopher_eye/api.dart';
-import 'package:gopher_eye/plant_capture.dart';
+import 'package:gopher_eye/widgets/plant_capture.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

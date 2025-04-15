@@ -7,7 +7,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gallery_saver/gallery_saver.dart';
-import 'package:gopher_eye/preview_page.dart';
+import 'package:gopher_eye/widgets/preview_page.dart';
 import 'package:gopher_eye/providers/model_provider.dart';
 import 'package:gopher_eye/providers/plot_provider.dart';
 import 'package:gopher_eye/widgets/mobile_scanner_with_overlay.dart';
