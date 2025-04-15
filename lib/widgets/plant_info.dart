@@ -21,10 +21,12 @@ class _PlantInfoState extends State<PlantInfo> {
   bool areBoundingBoxesVisible = true;
   bool areMasksVisible = true;
   List<Color> maskColors = [];
+  int subListLength = 0;
 
   void initState() {
     super.initState();
-    for (int i = 0; i < widget.plantInfo.labels!.length; i++) {
+    subListLength = widget.plantInfo.labels!.length ~/ 7;
+    for (int i = 0; i < subListLength; i++) {
       switch (widget.plantInfo.labels![i]) {
         case 'Healthy-Leaf':
           maskColors.add(Colors.green);
@@ -66,123 +68,81 @@ class _PlantInfoState extends State<PlantInfo> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Stack(children: <Widget>[
-                        Image.file(File(widget.plantInfo.image!)),
-                        Visibility(
+                        Image.file(File(widget.plantInfo.image!))]
+                        + 
+                        [for (var i = 0; i < subListLength; i++ ) Visibility(
                             visible: areMasksVisible,
                             child: Positioned.fill(
-                                child: Masks(
-                                    masks: widget.plantInfo.masks,
-                                    colors: maskColors))),
-                        Visibility(
-                            visible: areBoundingBoxesVisible,
-                            child: Positioned.fill(
-                                child: LayoutBuilder(
-                                    builder: (context, constraints) =>
-                                        CustomPaint(
-                                          painter: BoundingBoxes(
-                                              widget.plantInfo.boundingBoxes,
-                                              constraints.maxWidth,
-                                              constraints.maxHeight,
-                                              maskColors,
-                                              widget.plantInfo.labels!),
-                                        )))),
+                                child: Mask(
+                                    mask: widget.plantInfo.masks?[i],
+                                    color: maskColors[i])))],
+                        // Visibility(
+                        //     visible: areBoundingBoxesVisible,
+                        //     child: Positioned.fill(
+                        //         child: LayoutBuilder(
+                        //             builder: (context, constraints) =>
+                        //                 CustomPaint(
+                        //                   painter: BoundingBoxes(
+                        //                       widget.plantInfo.boundingBoxes,
+                        //                       constraints.maxWidth,
+                        //                       constraints.maxHeight,
+                        //                       maskColors,
+                        //                       widget.plantInfo.labels!),
+                        //                 )))),
                         
-                      ]),
-                      const SizedBox(height: 10.0),
-                      Text(
-                        "Name: ${widget.plantInfo.id}",
                       ),
                       const SizedBox(height: 10.0),
-                      Text(
-                        "Description: ${widget.plantInfo.id}",
+                      const Text(
+                        "Labels:",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 10.0),
-                      Text(
-                        "Status: ${widget.plantInfo.status}",
-                      ),
-                      const SizedBox(height: 10.0),
-                      if (widget.plantInfo.status == 'completed')
-                        Text(
-                          "disease: ${widget.plantInfo.id}",
-                        ),
-                      const SizedBox(height: 10.0),
-                      if (widget.plantInfo.status == 'completed')
-                        Text(
-                          "Plant Cure: ${widget.plantInfo.id}",
-                        ),
-                      const SizedBox(height: 10.0),
-                      Row(children: [
-                        const Text("Show Bounding Boxes"),
-                        Switch(
-                          value: areBoundingBoxesVisible,
-                          onChanged: (value) {
-                            setState(() {
-                              areBoundingBoxesVisible = value;
-                            });
-                          },
-                        )
-                      ]),
-                      Row(children: [
-                        const Text("Show Masks"),
-                        Switch(
-                          value: areMasksVisible,
-                          onChanged: (value) {
-                            setState(() {
-                              areMasksVisible = value;
-                            });
-                          },
-                        )
-                      ]),
-                      // Add a button to fetch the plant status
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (widget.plantInfo.id == null) {
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            var plantId = prefs.getString('plant_id');
-                            if (plantId != null) {
-                              final status = await fetchPlantStatus(plantId);
-                              if (status != null) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Plant status: $status'),
-                                  ),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text('Failed to fetch plant status'),
-                                  ),
-                                );
-                              }
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Plant ID not found'),
+                      ListView.builder(
+                        shrinkWrap: true, // Ensures the ListView doesn't take infinite height
+                        physics: const AlwaysScrollableScrollPhysics(), // Prevents scrolling inside the ListView
+                        itemCount: subListLength,
+                        itemBuilder: (context, index) {
+                          return Row(
+                            children: [
+                              Container(
+                                width: 32,
+                                height: 32,
+                                margin: const EdgeInsets.only(right: 8.0),
+                                decoration: BoxDecoration(
+                                  color: maskColors[index],
+                                  shape: BoxShape.circle,
                                 ),
-                              );
-                            }
-                          } else {
-                            final status =
-                                await fetchPlantStatus(widget.plantInfo.id!);
-                            if (status != null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Plant status: $status'),
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Failed to fetch plant status'),
-                                ),
-                              );
-                            }
-                          }
+                              ),
+                              Text(
+                                widget.plantInfo.labels![index],
+                                style: const TextStyle(fontSize: 20),
+                              ),
+                            ],
+                          );
                         },
-                        child: const Center(child: Text('Fetch Plant Status')),
                       ),
+                      const SizedBox(height: 10.0),
+                      // Row(children: [
+                      //   const Text("Show Bounding Boxes"),
+                      //   Switch(
+                      //     value: areBoundingBoxesVisible,
+                      //     onChanged: (value) {
+                      //       setState(() {
+                      //         areBoundingBoxesVisible = value;
+                      //       });
+                      //     },
+                      //   )
+                      // ]),
+                      // Row(children: [
+                      //   const Text("Show Masks"),
+                      //   Switch(
+                      //     value: areMasksVisible,
+                      //     onChanged: (value) {
+                      //       setState(() {
+                      //         areMasksVisible = value;
+                      //       });
+                      //     },
+                      //   )
+                      // ]),
                     ],
                   ),
                 ),
@@ -192,23 +152,6 @@ class _PlantInfoState extends State<PlantInfo> {
         ),
       ),
     );
-  }
-
-  Future<String?> fetchPlantStatus(String plantId) async {
-    ApiServiceController api = ApiServiceController();
-
-    try {
-      final String status = await api.getPlantStatus(plantId);
-      if (status.isNotEmpty) {
-        return status;
-      } else {
-        print('Failed to fetch plant status');
-        return null;
-      }
-    } catch (e) {
-      print('Error occurred while fetching plant status: $e');
-      return null;
-    }
   }
 }
 
@@ -306,6 +249,58 @@ class Masks extends StatelessWidget {
                   masks, constraints.maxWidth, constraints.maxHeight, colors),
             ));
   }
+}
+
+class Mask extends StatelessWidget {
+  final Color color;
+  final dynamic? mask;
+
+  const Mask({super.key, required this.mask, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+        builder: (context, constraints) => CustomPaint(
+              painter: MaskPainter(
+                  mask, constraints.maxWidth, constraints.maxHeight, color),
+            ));
+  }
+}
+class MaskPainter extends CustomPainter {
+  final dynamic mask;
+  final double widthScale;
+  final double heightScale;
+  final Color color;
+
+  MaskPainter(this.mask, this.widthScale, this.heightScale, this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
+
+      final path = Path();
+      for (int j = 0; j < mask!.length; j += 2) {
+        final x = mask![j];
+        final y = mask![j + 1];
+        if (j == 0) {
+          path.moveTo(widthScale * x, heightScale * y);
+        } else {
+          path.lineTo(widthScale * x, heightScale * y);
+        }
+      }
+      path.close();
+      
+      paint.color = this.color.withOpacity(0.5);
+      canvas.drawPath(path, paint..style = PaintingStyle.fill);
+      paint.color = this.color.withOpacity(1.0);
+      canvas.drawPath(path, paint..style = PaintingStyle.stroke);
+    }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 class MasksPainter extends CustomPainter {
