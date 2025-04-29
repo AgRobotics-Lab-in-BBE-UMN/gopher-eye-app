@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gopher_eye/image_data.dart';
+import 'package:gopher_eye/screens/mask_detail_screen.dart';
 
 import 'package:gopher_eye/services/api.dart';
 import 'package:http/http.dart' as http;
@@ -22,10 +23,12 @@ class _PlantInfoState extends State<PlantInfo> {
   bool areMasksVisible = true;
   List<Color> maskColors = [];
   int subListLength = 0;
+  late List<bool> individualMaskVisibility;
 
   void initState() {
     super.initState();
-    subListLength = widget.plantInfo.labels!.length ~/ 7;
+    subListLength = widget.plantInfo.labels!.length;
+    individualMaskVisibility = List.generate(subListLength, (_) => true);
     for (int i = 0; i < subListLength; i++) {
       switch (widget.plantInfo.labels![i]) {
         case 'Healthy-Leaf':
@@ -45,6 +48,8 @@ class _PlantInfoState extends State<PlantInfo> {
 
   @override
   Widget build(BuildContext context) {
+    final Color iconColor = Colors.grey;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -71,7 +76,7 @@ class _PlantInfoState extends State<PlantInfo> {
                         Image.file(File(widget.plantInfo.image!))]
                         + 
                         [for (var i = 0; i < subListLength; i++ ) Visibility(
-                            visible: areMasksVisible,
+                            visible: areMasksVisible && individualMaskVisibility[i],
                             child: Positioned.fill(
                                 child: Mask(
                                     mask: widget.plantInfo.masks?[i],
@@ -95,31 +100,85 @@ class _PlantInfoState extends State<PlantInfo> {
                       const Text(
                         "Labels:",
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      ListView.builder(
-                        shrinkWrap: true, // Ensures the ListView doesn't take infinite height
-                        physics: const AlwaysScrollableScrollPhysics(), // Prevents scrolling inside the ListView
-                        itemCount: subListLength,
-                        itemBuilder: (context, index) {
-                          return Row(
-                            children: [
-                              Container(
-                                width: 32,
-                                height: 32,
-                                margin: const EdgeInsets.only(right: 8.0),
+                        ),
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height-500,
+                          child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: subListLength,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Container(
                                 decoration: BoxDecoration(
-                                  color: maskColors[index],
-                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      spreadRadius: 1,
+                                      blurRadius: 2,
+                                      offset: const Offset(0, 1),
+                                    ),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 32,
+                                      height: 32,
+                                      margin: const EdgeInsets.only(right: 8.0),
+                                      decoration: BoxDecoration(
+                                        color: maskColors[index],
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        widget.plantInfo.labels![index],
+                                        style: const TextStyle(fontSize: 20),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        individualMaskVisibility[index] ? Icons.visibility : Icons.visibility_off,
+                                        color: individualMaskVisibility[index] ? iconColor : iconColor,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          individualMaskVisibility[index] = !individualMaskVisibility[index];
+                                        });
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.zoom_in,
+                                        color: Colors.blueAccent,
+                                      ),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => MaskDetailScreen(
+                                              imagePath: widget.plantInfo.image!,
+                                              mask: widget.plantInfo.masks?[index],
+                                              label: widget.plantInfo.labels![index],
+                                              color: maskColors[index],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ),
-                              Text(
-                                widget.plantInfo.labels![index],
-                                style: const TextStyle(fontSize: 20),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                            );
+                          },
+                          ),
+                        ),
                       const SizedBox(height: 10.0),
                       // Row(children: [
                       //   const Text("Show Bounding Boxes"),
